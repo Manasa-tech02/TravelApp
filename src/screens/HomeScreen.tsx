@@ -20,6 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // Redux
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
+import { addSearchTerm } from '../redux/slices/historySlice';
 
 // Import Data
 import { CATEGORIES, PLACES, Place } from '../constants/MockData';
@@ -40,6 +41,24 @@ export default function HomeScreen() {
   
   // State to track which category is selected
   const [activeCategory, setActiveCategory] = useState<string>('1');
+  const [searchText, setSearchText] = useState('');
+
+  const handleSearchSubmit = () => {
+    const trimmedText = searchText.trim();
+    if (trimmedText) {
+      // Check if the search text matches any place title (case-insensitive)
+      const match = PLACES.find(place => 
+        place.title.toLowerCase().includes(trimmedText.toLowerCase())
+      );
+
+      if (match) {
+        // Only add to history if it matches a real place
+        dispatch(addSearchTerm(match.title));
+      }
+      
+      setSearchText(''); // Clear input after search
+    }
+  };
 
   // --- Render Functions ---
 
@@ -136,6 +155,10 @@ export default function HomeScreen() {
               placeholder="Search places" 
               placeholderTextColor="#A0A0A0"
               style={styles.searchInput}
+              value={searchText}
+              onChangeText={setSearchText}
+              onSubmitEditing={handleSearchSubmit}
+              returnKeyType="search"
             />
           </View>
           <View style={styles.filterDivider} />
@@ -286,6 +309,7 @@ const styles = StyleSheet.create({
   },
   placesContainer: {
     paddingBottom: 20,
+    
   },
   cardContainer: {
     width: CARD_WIDTH,

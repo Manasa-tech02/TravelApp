@@ -21,11 +21,14 @@ const historySlice = createSlice({
       // Optional: Limit history to 10 items
       if (state.searches.length > 10) state.searches.pop();
     },
+    removeSearchTerm: (state, action: PayloadAction<string>) => {
+      state.searches = state.searches.filter(t => t !== action.payload);
+    },
     clearHistory: (state) => {
       state.searches = [];
     }
   },
 });
 
-export const { addSearchTerm, clearHistory } = historySlice.actions;
+export const { addSearchTerm, removeSearchTerm, clearHistory } = historySlice.actions;
 export default historySlice.reducer;

@@ -6,6 +6,7 @@ import { View, Text, StyleSheet, Platform } from 'react-native';
 // Import Screens
 import HomeScreen from '../screens/HomeScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 
 // Import Types
 import { TabParamList } from './types';
@@ -18,7 +19,6 @@ const PlaceholderScreen = ({ name }: { name: string }) => (
 );
 
 // Define stable components outside the navigator
-const HistoryScreen = () => <PlaceholderScreen name="History" />;
 const ProfileScreen = () => <PlaceholderScreen name="Profile" />;
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -36,7 +36,8 @@ export default function TabNavigator() {
           shadowOpacity: 0, // iOS shadow
           height: Platform.OS === 'ios' ? 85 : 70,
           paddingTop: 10,
-          paddingBottom: Platform.OS === 'ios' ? 25 : 10,
+          paddingBottom: 80,
+          
         },
         tabBarActiveTintColor: '#FF3D00', // Red/Orange for active
         tabBarInactiveTintColor: '#B0B0B0', // Grey for inactive
@@ -105,7 +106,8 @@ const styles = StyleSheet.create({
     borderRadius: 2.5, 
     backgroundColor: '#FF3D00', 
     position: 'absolute',
-    bottom: -8 
+    bottom: -8, 
+   // marginBottom: 40,
   },
   placeholderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F9F9' },
   placeholderText: { fontSize: 18, color: '#888' },

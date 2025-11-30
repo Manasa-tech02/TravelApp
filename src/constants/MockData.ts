@@ -44,4 +44,4 @@ export const PLACES: Place[] = [
     price: 230,
     description: 'The Altay Mountains are a mountain range in Central and East Asia, where Russia, China, Mongolia, and Kazakhstan come together.'
   },
-];
+];   
