@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Redux
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
@@ -24,6 +25,13 @@ import { addSearchTerm } from '../redux/slices/historySlice';
 
 // Import Data
 import { CATEGORIES, PLACES, Place } from '../constants/MockData';
+
+// Import Screens for Tabs
+import FavoritesScreen from './FavoritesScreen';
+import HistoryScreen from './HistoryScreen';
+
+// Import Types
+import { TabParamList } from '../navigation/types';
 
 // Define types locally
 type RootStackParamList = {
@@ -34,7 +42,8 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.7;
 const CARD_HEIGHT = CARD_WIDTH * 1.5;
 
-export default function HomeScreen() {
+// --- 1. The Content of the Home Screen (Dashboard) ---
+function HomeContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
@@ -203,6 +212,96 @@ export default function HomeScreen() {
 
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+// --- 2. The Tab Navigator Wrapper ---
+
+// Placeholder screens for tabs not yet built
+const PlaceholderScreen = ({ name }: { name: string }) => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F9F9' }}>
+    <Text style={{ fontSize: 18, color: '#888' }}>{name} Screen</Text>
+  </View>
+);
+
+const ProfileScreen = () => <PlaceholderScreen name="Profile" />;
+
+const Tab = createBottomTabNavigator<TabParamList>();
+
+export default function HomeScreen() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false, 
+        tabBarStyle: {
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 0,
+          elevation: 0, // Flat look as per design
+          shadowOpacity: 0,
+          
+          // --- HIGHLIGHT: Adjust Tab Bar Padding & Height Here ---
+          height: Platform.OS === 'ios' ? 90 : 70, 
+          paddingTop: 10, // Space above icons
+          paddingBottom: 80, // Space below icons (Safe Area)
+          // -------------------------------------------------------
+        },
+        tabBarActiveTintColor: '#FF3D00', // Red/Orange for active
+        tabBarInactiveTintColor: '#B0B0B0', // Grey for inactive
+      }}
+    >
+      <Tab.Screen 
+        name="HomeScreen" 
+        component={HomeContent} 
+        options={{
+          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            <View style={styles.iconContainer}>
+              <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
+          ),
+        }}
+      />
+      
+      <Tab.Screen 
+        name="History" 
+        component={HistoryScreen} 
+        options={{
+          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+             <View style={styles.iconContainer}>
+               <Ionicons name="time-outline" size={24} color={color} />
+               {focused && <View style={styles.activeDot} />}
+             </View>
+          ),
+        }}
+      />
+
+      <Tab.Screen 
+        name="Favorites" 
+        component={FavoritesScreen} 
+        options={{
+          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            <View style={styles.iconContainer}>
+              <Ionicons name={focused ? "heart" : "heart-outline"} size={24} color={color} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
+          ),
+        }}
+      />
+
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{
+          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            <View style={styles.iconContainer}>
+              <Ionicons name="person-outline" size={24} color={color} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
@@ -378,5 +477,20 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 13,
     fontWeight: 'bold',
-  }
+  },
+  // Tab Bar Styles
+  iconContainer: { 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    height: 40,
+    width: 40,
+  },
+  activeDot: { 
+    width: 6, 
+    height: 6, 
+    borderRadius: 3, 
+    backgroundColor: '#FF3D00', 
+    position: 'absolute',
+    bottom: -6, 
+  },
 });

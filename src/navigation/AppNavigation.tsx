@@ -5,19 +5,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Import Screens & Navigators
 import WelcomeScreen from '../screens/WelcomeScreen';
-import TabNavigator from './TabNaviagtor';
 
 // Import Types (This defines the correct screen names: Welcome, Home, Details)
 import { RootStackParamList } from './types';
+import DetailsScreen from '../screens/DetailsScreen';
+import HomeScreen from '../screens/HomeScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-// Temporary Placeholder for Details Screen 
-const DetailsPlaceholder = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-    <Text>Details Screen</Text>
-  </View>
-);
 
 export default function AppNavigator() {
   return (
@@ -34,12 +28,12 @@ export default function AppNavigator() {
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
 
         {/* 2. Main App (Tabs) - NAME MUST BE 'HomeScreen' as per types.ts */}
-        <Stack.Screen name="HomeScreen" component={TabNavigator} />
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
 
         {/* 3. Details Screen */}
         <Stack.Screen 
           name="Details" 
-          component={DetailsPlaceholder} 
+          component={DetailsScreen} 
           options={{ presentation: 'card' }}
         />
       </Stack.Navigator>
