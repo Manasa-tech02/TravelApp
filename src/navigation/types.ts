@@ -14,4 +14,5 @@ export type RootStackParamList = {
   Welcome: undefined;
   HomeScreen: NavigatorScreenParams<TabParamList>; // This holds the TabNavigator
   Details: { place: Place };
+  SignUp: undefined;
 };

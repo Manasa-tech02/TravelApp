@@ -10,6 +10,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import { RootStackParamList } from './types';
 import DetailsScreen from '../screens/DetailsScreen';
 import HomeScreen from '../screens/HomeScreen';
+import SignUpScreen from '../screens/SignUpScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +37,9 @@ export default function AppNavigator() {
           component={DetailsScreen} 
           options={{ presentation: 'card' }}
         />
+
+        {/* 4. Sign Up Screen */}
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

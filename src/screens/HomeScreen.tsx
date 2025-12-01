@@ -18,19 +18,20 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-// Redux
+
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 import { addSearchTerm } from '../redux/slices/historySlice';
 
-// Import Data
+
 import { CATEGORIES, PLACES, Place } from '../constants/MockData';
 
-// Import Screens for Tabs
+
 import FavoritesScreen from './FavoritesScreen';
 import HistoryScreen from './HistoryScreen';
+import ProfileScreen from './ProfileScreen';
 
-// Import Types
+
 import { TabParamList } from '../navigation/types';
 
 // Define types locally
@@ -42,36 +43,36 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.7;
 const CARD_HEIGHT = CARD_WIDTH * 1.5;
 
-// --- 1. The Content of the Home Screen (Dashboard) ---
+
 function HomeContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
   
-  // State to track which category is selected
-  const [activeCategory, setActiveCategory] = useState<string>('1');
+ 
+  const [activeCategory, setActiveCategory] = useState<string>('2');
   const [searchText, setSearchText] = useState('');
 
   const handleSearchSubmit = () => {
     const trimmedText = searchText.trim();
     if (trimmedText) {
-      // Check if the search text matches any place title (case-insensitive)
+     
       const match = PLACES.find(place => 
         place.title.toLowerCase().includes(trimmedText.toLowerCase())
       );
 
       if (match) {
-        // Only add to history if it matches a real place
+       
         dispatch(addSearchTerm(match.title));
       }
       
-      setSearchText(''); // Clear input after search
+      setSearchText(''); 
     }
   };
 
-  // --- Render Functions ---
+ 
 
-  // 1. Category Pill
+
   const renderCategory = ({ item }: { item: { id: string; name: string } }) => {
     const isActive = activeCategory === item.id;
     return (
@@ -92,7 +93,7 @@ function HomeContent() {
     );
   };
 
-  // 2. Place Card
+ 
   const renderPlaceCard = ({ item }: { item: Place }) => {
     const isFavorite = favorites.some((fav) => fav.id === item.id);
 
@@ -141,7 +142,7 @@ function HomeContent() {
         showsVerticalScrollIndicator={false}
       >
         
-        {/* --- HEADER SECTION --- */}
+     
         <View style={styles.header}>
           <View>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
@@ -156,7 +157,7 @@ function HomeContent() {
           />
         </View>
 
-        {/* --- SEARCH BAR --- */}
+       
         <View style={styles.searchContainer}>
           <View style={styles.searchWrapper}>
             <Ionicons name="search-outline" size={20} color="#A0A0A0" style={{ marginRight: 10 }} />
@@ -176,7 +177,7 @@ function HomeContent() {
           </TouchableOpacity>
         </View>
 
-        {/* --- POPULAR PLACES HEADER --- */}
+       
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Popular places</Text>
           <TouchableOpacity>
@@ -184,7 +185,7 @@ function HomeContent() {
           </TouchableOpacity>
         </View>
 
-        {/* --- CATEGORIES --- */}
+       
         <View style={styles.categoriesContainer}>
           <FlatList
             horizontal
@@ -196,7 +197,7 @@ function HomeContent() {
           />
         </View>
 
-        {/* --- PLACES CAROUSEL --- */}
+     
         <View style={styles.placesContainer}>
           <FlatList
             horizontal
@@ -215,16 +216,13 @@ function HomeContent() {
   );
 }
 
-// --- 2. The Tab Navigator Wrapper ---
 
-// Placeholder screens for tabs not yet built
+
 const PlaceholderScreen = ({ name }: { name: string }) => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F9F9' }}>
     <Text style={{ fontSize: 18, color: '#888' }}>{name} Screen</Text>
   </View>
 );
-
-const ProfileScreen = () => <PlaceholderScreen name="Profile" />;
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -237,10 +235,10 @@ export default function HomeScreen() {
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 0,
-          elevation: 0, // Flat look as per design
+          elevation: 0, 
           shadowOpacity: 0,
           
-          // --- HIGHLIGHT: Adjust Tab Bar Padding & Height Here ---
+         
           height: Platform.OS === 'ios' ? 90 : 70, 
           paddingTop: 10, // Space above icons
           paddingBottom: 80, // Space below icons (Safe Area)
