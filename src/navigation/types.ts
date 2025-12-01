@@ -1,5 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
-import { Place } from '../constants/MockData';
+import { Place } from '../services/api';
 
 // 1. The Bottom Tabs (Home, History, Favorites, Profile)
 export type TabParamList = {

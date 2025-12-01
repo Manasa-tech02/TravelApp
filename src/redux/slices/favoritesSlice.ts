@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // IMPORT the Place type from your MockData file to avoid redundancy
-import { Place } from '../../constants/MockData';
+import { Place } from '../../services/api';
 
 interface FavoritesState {
   items: Place[];

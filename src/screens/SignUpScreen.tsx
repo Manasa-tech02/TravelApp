@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert
+  Alert,ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -17,6 +17,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useAppDispatch } from '../redux/hooks';
 import { login } from '../redux/slices/authSlice';
+import { registerUser } from '../services/api';
+
 
 export default function SignUpScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -34,8 +36,10 @@ export default function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [isLoading,setIsLoading] = useState(false)
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
+    // 1. Basic Validation
     if (fullName.trim() === '' || email.trim() === '' || password.trim() === '' || confirmPassword.trim() === '') {
       Alert.alert('Missing Information', 'Please fill all the details.');
       return;
@@ -51,14 +55,44 @@ export default function SignUpScreen() {
       return;
     }
 
-    // Dispatch login action with user details
-    dispatch(login({
-      name: fullName,
-      email: email,
-      avatar: '' // We will generate initials in HomeScreen
-    }));
+    if (!agreeTerms) {
+       Alert.alert('Terms Required', 'Please agree to the Terms & Conditions.');
+       return;
+    }
 
-    navigation.navigate('HomeScreen', { screen: 'Profile' });
+    // 2. THE API CALL
+    setIsLoading(true); // Start the spinner
+    try {
+      // Call the backend
+      const user = await registerUser(fullName, email, password);
+      
+      // 3. AUTO-LOGIN (Dispatch to Redux)
+      // This is the part that makes it "like the previous one"
+      dispatch(login({ 
+        name: user.name, 
+        email: user.email, 
+        avatar: user.avatar 
+      }));
+
+      // Success Alert
+      Alert.alert(
+        "Welcome!", 
+        "Your account has been created successfully.",
+        [
+          { 
+            text: "Let's Go!", 
+            // Navigate STRAIGHT to Home (instead of Profile/Login)
+            onPress: () => navigation.navigate('HomeScreen', { screen: 'Profile' }) 
+          }
+        ]
+      );
+
+    } catch (error: any) {
+      // Handle Errors (like "User already exists")
+      Alert.alert("Registration Failed", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false); // Stop the spinner no matter what
+    }
   };
 
   return (
@@ -172,11 +206,17 @@ export default function SignUpScreen() {
           </TouchableOpacity>
 
           {/* Sign Up Button */}
+          {/* Sign Up Button */}
           <TouchableOpacity 
-            style={styles.signUpButton}
+            style={[styles.signUpButton, isLoading && { opacity: 0.7 }]} // Dim button when loading
             onPress={handleSignUp}
+            disabled={isLoading} // Disable clicks while loading
           >
-            <Text style={styles.signUpButtonText}>Create Account</Text>
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.signUpButtonText}>Create Account</Text>
+            )}
           </TouchableOpacity>
 
           {/* Divider */}

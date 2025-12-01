@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -10,7 +10,9 @@ import {
   StatusBar,
   ScrollView,
   Platform,
-  Dimensions
+  Dimensions,
+  ActivityIndicator, 
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -18,23 +20,26 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 import { addSearchTerm } from '../redux/slices/historySlice';
 
+// --- UPDATE 1: Import API and Types ---
+import { getPlaces, Place } from '../services/api'; 
 
-import { CATEGORIES, PLACES, Place } from '../constants/MockData';
-
+// Define Categories locally since they are just UI filters for now
+const CATEGORIES = [
+  { id: '1', name: 'Most Viewed' },
+  { id: '2', name: 'Nearby' },
+  { id: '3', name: 'Latest' },
+];
 
 import FavoritesScreen from './FavoritesScreen';
 import HistoryScreen from './HistoryScreen';
 import ProfileScreen from './ProfileScreen';
 
-
 import { TabParamList } from '../navigation/types';
 
-// Define types locally
 type RootStackParamList = {
   Details: { place: Place };
 };
@@ -43,21 +48,40 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.7;
 const CARD_HEIGHT = CARD_WIDTH * 1.5;
 
-
 function HomeContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
   const user = useAppSelector((state) => state.auth.user);
   
-  
   const [activeCategory, setActiveCategory] = useState<string>('2');
   const [searchText, setSearchText] = useState('');
 
- 
+  // --- UPDATE 2: Add State for Real Data ---
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // --- UPDATE 3: Fetch Data on Load ---
+  useEffect(() => {
+    loadPlaces();
+  }, []);
+
+  const loadPlaces = async (query?: string) => {
+    setLoading(true);
+    try {
+      const data = await getPlaces(query);
+      setPlaces(data);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Could not load places from server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getInitials = (name: string) => {
     if (!name) return 'U';
-    const parts = name.split(' ');
+    const parts = name.trim().split(' ');
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
   };
@@ -65,22 +89,14 @@ function HomeContent() {
   const handleSearchSubmit = () => {
     const trimmedText = searchText.trim();
     if (trimmedText) {
-     
-      const match = PLACES.find(place => 
-        place.title.toLowerCase().includes(trimmedText.toLowerCase())
-      );
-
-      if (match) {
-       
-        dispatch(addSearchTerm(match.title));
-      }
-      
-      setSearchText(''); 
+      // Call API with search term
+      loadPlaces(trimmedText);
+      dispatch(addSearchTerm(trimmedText));
+    } else {
+      // If empty, reload all places
+      loadPlaces();
     }
   };
-
- 
-
 
   const renderCategory = ({ item }: { item: { id: string; name: string } }) => {
     const isActive = activeCategory === item.id;
@@ -102,7 +118,6 @@ function HomeContent() {
     );
   };
 
- 
   const renderPlaceCard = ({ item }: { item: Place }) => {
     const isFavorite = favorites.some((fav) => fav.id === item.id);
 
@@ -112,7 +127,11 @@ function HomeContent() {
         onPress={() => navigation.navigate('Details', { place: item })}
         style={styles.cardContainer}
       >
-        <Image source={{ uri: item.image }} style={styles.cardImage} />
+        {/* --- UPDATE 4: Use 'image' from Mapped Data --- */}
+        <Image 
+          source={{ uri: item.image }} 
+          style={styles.cardImage} 
+        />
 
         <TouchableOpacity 
           style={styles.cardIconContainer}
@@ -126,6 +145,7 @@ function HomeContent() {
         </TouchableOpacity>
 
         <View style={styles.cardOverlay}>
+           {/* Mapped data uses 'title' */}
            <Text style={styles.cardTitle}>{item.title}</Text>
            
            <View style={styles.cardLocationRow}>
@@ -151,25 +171,30 @@ function HomeContent() {
         showsVerticalScrollIndicator={false}
       >
         
-     
+        {/* Header */}
         <View style={styles.header}>
           <View>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
+              {/* This now comes from Redux User */}
               <Text style={styles.headerTitle}>Hi, {user?.name || 'Guest'}</Text>
               <Text style={{fontSize: 24}}>👋</Text>
             </View>
             <Text style={styles.headerSubtitle}>Explore the world</Text>
           </View>
           
-          {/* Initials Avatar */}
           <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>
-              {getInitials(user?.name || 'Guest')}
-            </Text>
+             {/* Use User's Avatar URL if available, else Initials */}
+             {user?.avatar ? (
+                <Image source={{uri: user.avatar}} style={styles.profileImage} />
+             ) : (
+                <Text style={styles.avatarText}>
+                  {getInitials(user?.name || 'Guest')}
+                </Text>
+             )}
           </View>
         </View>
 
-       
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <View style={styles.searchWrapper}>
             <Ionicons name="search-outline" size={20} color="#A0A0A0" style={{ marginRight: 10 }} />
@@ -189,15 +214,15 @@ function HomeContent() {
           </TouchableOpacity>
         </View>
 
-       
+        {/* Section Header */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Popular places</Text>
-          <TouchableOpacity>
-            <Text style={styles.viewAllText}>View all</Text>
+          <TouchableOpacity onPress={() => loadPlaces()}>
+            <Text style={styles.viewAllText}>Refresh</Text>
           </TouchableOpacity>
         </View>
 
-       
+        {/* Categories */}
         <View style={styles.categoriesContainer}>
           <FlatList
             horizontal
@@ -209,32 +234,36 @@ function HomeContent() {
           />
         </View>
 
-     
+        {/* --- UPDATE 5: Real Data List with Spinner --- */}
         <View style={styles.placesContainer}>
-          <FlatList
-            horizontal
-            data={PLACES}
-            renderItem={renderPlaceCard}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}
-            snapToInterval={CARD_WIDTH + 20} 
-            decelerationRate="fast"
-          />
+          {loading ? (
+             <View style={{height: CARD_HEIGHT, justifyContent: 'center', alignItems: 'center'}}>
+                <ActivityIndicator size="large" color="#FF3D00" />
+                <Text style={{color:'#888', marginTop: 10}}>Loading amazing places...</Text>
+             </View>
+          ) : (
+            <FlatList
+              horizontal
+              data={places} // <--- USING REAL STATE
+              renderItem={renderPlaceCard}
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}
+              snapToInterval={CARD_WIDTH + 20} 
+              decelerationRate="fast"
+              ListEmptyComponent={
+                <Text style={{textAlign:'center', marginTop: 50, color:'#888'}}>
+                  No places found in database.
+                </Text>
+              }
+            />
+          )}
         </View>
 
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-
-
-const PlaceholderScreen = ({ name }: { name: string }) => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F9F9' }}>
-    <Text style={{ fontSize: 18, color: '#888' }}>{name} Screen</Text>
-  </View>
-);
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -249,15 +278,12 @@ export default function HomeScreen() {
           borderTopWidth: 0,
           elevation: 0, 
           shadowOpacity: 0,
-          
-         
           height: Platform.OS === 'ios' ? 90 : 70, 
-          paddingTop: 10, // Space above icons
-          paddingBottom: 80, // Space below icons (Safe Area)
-          // -------------------------------------------------------
+          paddingTop: 10, 
+          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
         },
-        tabBarActiveTintColor: '#FF3D00', // Red/Orange for active
-        tabBarInactiveTintColor: '#B0B0B0', // Grey for inactive
+        tabBarActiveTintColor: '#FF3D00', 
+        tabBarInactiveTintColor: '#B0B0B0', 
       }}
     >
       <Tab.Screen 
@@ -334,6 +360,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A1A1A',
+    paddingRight:10,
   },
   headerSubtitle: {
     fontSize: 16,
@@ -390,10 +417,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
+    paddingRight:5,
   },
   viewAllText: {
     fontSize: 14,
     color: '#888',
+
     fontWeight: '500',
   },
   categoriesContainer: {
@@ -418,7 +447,6 @@ const styles = StyleSheet.create({
   },
   placesContainer: {
     paddingBottom: 20,
-    
   },
   cardContainer: {
     width: CARD_WIDTH,
@@ -488,7 +516,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
     paddingRight:5,
-    
   },
   // Tab Bar Styles
   iconContainer: { 
@@ -496,6 +523,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     height: 40,
     width: 40,
+    marginBottom:30,
+    marginTop:5,
   },
   activeDot: { 
     width: 6, 
@@ -512,6 +541,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   avatarText: {
     fontSize: 18,

@@ -19,7 +19,7 @@ import { useAppSelector, useAppDispatch } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 
 
-import { Place } from '../constants/MockData';
+import { Place } from '../services/api';
 
 type RootStackParamList = {
   Details: { place: Place };

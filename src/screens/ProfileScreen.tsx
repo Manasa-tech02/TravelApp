@@ -9,15 +9,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { loginUser } from '../services/api'; // Import the API function
+import { useAppDispatch } from '../redux/hooks';
+import { login } from '../redux/slices/authSlice';
+
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useAppDispatch();
   
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -26,21 +32,35 @@ export default function ProfileScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading,setIsLoading] = useState(false);
 
-  const handleSignIn = () => {
-    if (email.trim() === '' || password.trim() === '') {
-      Alert.alert('Missing Information', 'Please fill all the details.');
-      return;
-    }
+  const handleSignIn = async () => {
+  // 1. Basic Validation
+  if (!email || !password) {
+    Alert.alert('Error', 'Please enter both email and password');
+    return;
+  }
 
-    if (!email.includes('@') || !email.includes('.')) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
-      return;
-    }
+  setIsLoading(true); // Start spinner
 
-   
-    navigation.navigate('HomeScreen', { screen: 'HomeScreen' });
-  };
+  try {
+    // 2. Call API
+    const user = await loginUser(email, password);
+
+    // 3. Success!
+    // Dispatch to Redux (if you are using it for global state)
+    dispatch(login({ name: user.name, email: user.email, avatar: user.avatar }));
+    
+    // Navigate to Home
+    navigation.navigate('HomeScreen', { screen: 'HomeScreen' }); 
+
+  } catch (error: any) {
+    // 4. Handle Error (Wrong password, etc.)
+    Alert.alert('Login Failed', error.message);
+  } finally {
+    setIsLoading(false); // Stop spinner
+  }
+};
 
   return (
     <KeyboardAvoidingView 
