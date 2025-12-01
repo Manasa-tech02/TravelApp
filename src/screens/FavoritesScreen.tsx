@@ -14,11 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-// Redux
+
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 
-// Types
+
 import { Place } from '../constants/MockData';
 
 type RootStackParamList = {
@@ -41,7 +41,7 @@ export default function FavoritesScreen() {
       >
         <Image source={{ uri: item.image }} style={styles.cardImage} />
         
-        {/* Overlay Content */}
+      
         <View style={styles.cardContent}>
           <View style={styles.textContainer}>
             <Text style={styles.cardTitle}>{item.title}</Text>
@@ -55,7 +55,7 @@ export default function FavoritesScreen() {
             </View>
           </View>
 
-          {/* Heart Icon (to remove from favorites) */}
+        
           <TouchableOpacity 
             style={styles.heartButton}
             onPress={() => dispatch(toggleFavorite(item))}

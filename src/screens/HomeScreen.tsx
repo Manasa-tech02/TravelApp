@@ -48,10 +48,19 @@ function HomeContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
+  const user = useAppSelector((state) => state.auth.user);
   
- 
+  
   const [activeCategory, setActiveCategory] = useState<string>('2');
   const [searchText, setSearchText] = useState('');
+
+ 
+  const getInitials = (name: string) => {
+    if (!name) return 'U';
+    const parts = name.split(' ');
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
 
   const handleSearchSubmit = () => {
     const trimmedText = searchText.trim();
@@ -146,15 +155,18 @@ function HomeContent() {
         <View style={styles.header}>
           <View>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={styles.headerTitle}>Hi, David</Text>
+              <Text style={styles.headerTitle}>Hi, {user?.name || 'Guest'}</Text>
               <Text style={{fontSize: 24}}>👋</Text>
             </View>
             <Text style={styles.headerSubtitle}>Explore the world</Text>
           </View>
-          <Image 
-            source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} 
-            style={styles.profileImage} 
-          />
+          
+          {/* Initials Avatar */}
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>
+              {getInitials(user?.name || 'Guest')}
+            </Text>
+          </View>
         </View>
 
        
@@ -442,7 +454,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     right: 20,
-    backgroundColor: 'rgba(20, 30, 40, 0.75)', // Darker, slightly blue-ish overlay
+    backgroundColor: 'rgba(20, 30, 40, 0.75)', 
     padding: 16,
     borderRadius: 18,
   },
@@ -475,6 +487,8 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 13,
     fontWeight: 'bold',
+    paddingRight:5,
+    
   },
   // Tab Bar Styles
   iconContainer: { 
@@ -490,5 +504,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF3D00', 
     position: 'absolute',
     bottom: -6, 
+  },
+  avatarContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });

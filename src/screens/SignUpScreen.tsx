@@ -15,9 +15,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { useAppDispatch } from '../redux/hooks';
+import { login } from '../redux/slices/authSlice';
 
 export default function SignUpScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useAppDispatch();
   
   const fullNameRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
@@ -47,6 +50,13 @@ export default function SignUpScreen() {
       Alert.alert('Password Mismatch', 'Password and Confirm Password must be the same.');
       return;
     }
+
+    // Dispatch login action with user details
+    dispatch(login({
+      name: fullName,
+      email: email,
+      avatar: '' // We will generate initials in HomeScreen
+    }));
 
     navigation.navigate('HomeScreen', { screen: 'Profile' });
   };
