@@ -1,35 +1,31 @@
+import axios from 'axios';
 import { API_URL } from './config';
 import { User } from './types';
 
 
 export const registerUser = async (name: string, email: string, password: string) => {
   // First, check if email already exists
-  const checkRes = await fetch(`${API_URL}/users?email=${email}`);
-  const existingUsers = await checkRes.json();
+  const checkRes = await axios.get(`${API_URL}/users?email=${email}`);
+  const existingUsers = checkRes.data;
 
   if (existingUsers.length > 0) {
     throw new Error("User already exists with this email!");
   }
 
   // If unique, create the user
-  const response = await fetch(`${API_URL}/users`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ 
-      name, 
-      email, 
-      password, 
-      avatar: "https://www.imagine.art/ai-image-generator"
-    }),
+  const response = await axios.post(`${API_URL}/users`, { 
+    name, 
+    email, 
+    password,
+    avatar: "default",
   });
 
-  if (!response.ok) throw new Error("Failed to sign up");
-  return response.json();
+  return response.data;
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const response = await fetch(`${API_URL}/users?email=${email}`);
-  const users: User[] = await response.json();
+  const response = await axios.get<User[]>(`${API_URL}/users?email=${email}`);
+  const users = response.data;
 
   const user = users.find((u) => u.password === password);
 
