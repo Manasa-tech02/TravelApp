@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { loginUser } from '../services/api'; 
+import { loginUser } from '../services/authService'; 
 import { useAppDispatch } from '../redux/hooks';
 import { login } from '../redux/slices/authSlice';
 

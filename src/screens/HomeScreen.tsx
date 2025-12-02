@@ -27,7 +27,7 @@ import { fetchPlaces } from '../redux/slices/placesSlice';
 
 // --- UPDATE 1: Import API and Types ---
 import { Place } from '../services/types'; 
-import { getPlaces } from '../services/api';
+import { getPlaces } from '../services/placesService';
 
 // Define Categories locally since they are just UI filters for now
 const CATEGORIES = [
@@ -72,7 +72,7 @@ function HomeContent() {
     setLoading(true);
     try {
       const data = await getPlaces(query);
-      setPlaces(data);
+      setPlaces(data.slice(0, 5));
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Could not load places from server");
@@ -148,16 +148,18 @@ function HomeContent() {
 
         <View style={styles.cardOverlay}>
            {/* Mapped data uses 'title' */}
-           <Text style={styles.cardTitle}>{item.title}</Text>
+           <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
            
-           <View style={styles.cardLocationRow}>
-             <Ionicons name="location-outline" size={14} color="#D1D1D1" />
-             <Text style={styles.cardLocation}>{item.location}</Text>
-           </View>
+           <View style={styles.cardFooterRow}>
+             <View style={styles.cardLocationRow}>
+               <Ionicons name="location-outline" size={14} color="#D1D1D1" />
+               <Text style={styles.cardLocation} numberOfLines={1}>{item.location}</Text>
+             </View>
 
-           <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={12} color="#FFD700" />
-              <Text style={styles.ratingText}>{item.rating}</Text>
+             <View style={styles.ratingContainer}>
+                <Ionicons name="star" size={12} color="#FFD700" />
+                <Text style={styles.ratingText}>{item.rating}</Text>
+             </View>
            </View>
         </View>
       </TouchableOpacity>
@@ -179,20 +181,16 @@ function HomeContent() {
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
               {/* This now comes from Redux User */}
               <Text style={styles.headerTitle}>Hi, {user?.name || 'Guest'}</Text>
-              <Text style={{fontSize: 24}}>👋</Text>
+              <Text style={{fontSize: 28}}>👋</Text>
             </View>
             <Text style={styles.headerSubtitle}>Explore the world</Text>
           </View>
           
           <View style={styles.avatarContainer}>
-             {/* Use User's Avatar URL if available, else Initials */}
-             {user?.avatar ? (
-                <Image source={{uri: user.avatar}} style={styles.profileImage} />
-             ) : (
-                <Text style={styles.avatarText}>
-                  {getInitials(user?.name || 'Guest')}
-                </Text>
-             )}
+
+           <Text style={styles.avatarText}>
+             {getInitials(user?.name || 'Guest')}
+            </Text>
           </View>
         </View>
 
@@ -370,6 +368,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
   },
+  
+
+  
   profileImage: {
     width: 50,
     height: 50,
@@ -462,6 +463,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 5,
+    //paddingBottom:100,
   },
   cardImage: {
     width: '100%',
@@ -487,6 +489,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20, 30, 40, 0.75)', 
     padding: 16,
     borderRadius: 18,
+    
   },
   cardTitle: {
     color: '#FFF',
@@ -494,11 +497,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
   },
+  cardFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   cardLocationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 0,
     gap: 4,
+    flex: 1,
   },
   cardLocation: {
     color: '#D1D1D1',
@@ -506,12 +514,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   ratingContainer: {
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    paddingRight:5,
   },
   ratingText: {
     color: '#FFF',
@@ -539,7 +545,7 @@ const styles = StyleSheet.create({
   avatarContainer: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 30,
     backgroundColor: '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
@@ -550,4 +556,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  
 });

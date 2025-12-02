@@ -21,7 +21,7 @@ export interface ApiPlace {
   name: string;     
   location: string;
   rating: number;
-  imageUrl: string;
+  image: string;
   description: string;
   price: string;
 }

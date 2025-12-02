@@ -25,7 +25,7 @@ export const getPlaces = async (searchQuery?: string): Promise<Place[]> => {
     id: item.id,
     title: item.name,       
     location: item.location,
-    image: item.imageUrl,    
+    image: item.image,    
     rating: item.rating,
    
     description: item.description, 

@@ -1,7 +1,6 @@
 import { API_URL } from './config';
 import { User } from './types';
 
-// NOTE: We do NOT import AsyncStorage here because Redux Persist handles it.
 
 export const registerUser = async (name: string, email: string, password: string) => {
   // First, check if email already exists
