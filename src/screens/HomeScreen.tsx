@@ -64,40 +64,36 @@ function HomeContent() {
   const [activeCategory, setActiveCategory] = useState<SortCategory>('most_viewed');
   const [searchText, setSearchText] = useState('');
 
-  // --- 2. Unified Data Fetching Function ---
+
   const loadData = useCallback(() => {
-    // We dispatch the Thunk with all necessary arguments
+    
     dispatch(fetchPlaces({
       category: activeCategory,
       searchQuery: searchText,
-      // NOTE: For 'nearby' to work, you need real GPS here. 
-      // passing default coordinates (San Francisco) for testing.
+   
       userLat: 37.7749, 
       userLng: -122.4194
     }));
   }, [activeCategory, searchText, dispatch]);
 
-  // --- 3. Effects ---
-  
-  // Trigger fetch when Category changes
+
   useEffect(() => {
     loadData();
   }, [activeCategory]);
 
-  // Trigger fetch when Search changes (with debounce)
+
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       loadData();
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchText]); // Run when searchText changes
+  }, [searchText]); 
 
-  // Optional: Refetch when screen comes into focus (to ensure fresh data)
+ 
   useFocusEffect(
     useCallback(() => {
-      // Uncomment if you want auto-refresh on focus
-      // loadData(); 
+      
     }, [loadData])
   );
 

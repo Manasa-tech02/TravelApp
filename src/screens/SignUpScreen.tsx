@@ -202,12 +202,11 @@ export default function SignUpScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Sign Up Button */}
-          {/* Sign Up Button */}
+          
           <TouchableOpacity 
-            style={[styles.signUpButton, isLoading && { opacity: 0.7 }]} // Dim button when loading
+            style={[styles.signUpButton, isLoading && { opacity: 0.7 }]}
             onPress={handleSignUp}
-            disabled={isLoading} // Disable clicks while loading
+            disabled={isLoading} 
           >
             {isLoading ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -232,7 +231,7 @@ export default function SignUpScreen() {
           <View style={styles.footer}>
             <Text style={styles.footerText}>Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('HomeScreen', { screen: 'Profile' })}>
-              {/* Note: Navigating to Profile tab which holds the Sign In screen */}
+             
               <Text style={styles.footerLink}>Sign in</Text>
             </TouchableOpacity>
           </View>
