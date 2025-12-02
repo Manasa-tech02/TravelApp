@@ -73,22 +73,22 @@ export default function SignUpScreen() {
           [
             { 
               text: "Let's Go!", 
-              // Navigate STRAIGHT to Home (instead of Profile/Login)
+            
               onPress: () => navigation.navigate('HomeScreen', { screen: 'Profile' }) 
             }
           ]
         );
       } else {
-        // Failed
+        
         const errorMsg = resultAction.payload as string || "Registration failed";
         throw new Error(errorMsg);
       }
 
     } catch (error: any) {
-      // Handle Errors (like "User already exists")
+     
       Alert.alert("Registration Failed", error.message || "Something went wrong");
     } finally {
-      setIsLoading(false); // Stop the spinner no matter what
+      setIsLoading(false); 
     }
   };
 

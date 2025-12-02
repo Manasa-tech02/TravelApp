@@ -17,13 +17,15 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { loginUser } from '../services/authService'; 
-import { useAppDispatch } from '../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { login } from '../redux/slices/authSlice';
+import LogOutScreen from './LogOutScreen';
 
 
 export default function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
   
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -47,7 +49,6 @@ export default function ProfileScreen() {
    
     const user = await loginUser(email, password);
 
-   
     dispatch(login(user));
     
    
@@ -60,6 +61,10 @@ export default function ProfileScreen() {
     setIsLoading(false); 
   }
 };
+
+  if (isAuthenticated) {
+    return <LogOutScreen />;
+  }
 
   return (
     <KeyboardAvoidingView 

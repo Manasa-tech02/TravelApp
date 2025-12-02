@@ -38,8 +38,7 @@ export const getPlaces = async (
     const response = await axios.get<ApiPlace[]>(url, { params });
     let data = response.data;
 
-    // --- 3. CLIENT-SIDE SORTING (NEARBY) ---
-    // MockAPI cannot calculate distance, so we fetch the list and sort it here.
+
     if (category === 'nearby' && userLat && userLng) {
       data = data.sort((a, b) => {
         const distA = getDistance(
@@ -54,7 +53,7 @@ export const getPlaces = async (
       });
     }
 
-    // --- 4. MAP TO UI TYPES ---
+
     return data.map(item => ({
       id: item.id,
       title: item.name,       
@@ -64,7 +63,7 @@ export const getPlaces = async (
       description: item.description, 
       price: parseFloat(item.price),
       
-      // Map the new fields we added to types.ts
+    
       latitude: parseFloat(item.latitude),
       longitude: parseFloat(item.longitude),
       views: item.views || 0,
@@ -72,9 +71,9 @@ export const getPlaces = async (
     }));
 
   } catch (error: any) {
-    // --- 5. ERROR HANDLING ---
+   
     if (axios.isAxiosError(error)) {
-      // If searching returns nothing (404), return empty array instead of crashing
+      
       if (error.response?.status === 404) {
         return [];
       }

@@ -14,11 +14,19 @@ const getErrorMessage = (error: any): string => {
 
 export const registerUser = async (name: string, email: string, password: string): Promise<User> => {
   try {
-    // 1. Check if user exists
-    const checkRes = await axios.get(`${API_URL}/users?email=${email}`);
-    
-    if (checkRes.data.length > 0) {
-      throw new Error("User already exists with this email!");
+ 
+    try {
+      const checkRes = await axios.get(`${API_URL}/users?email=${email}`);
+      if (checkRes.data.length > 0) {
+        throw new Error("User already exists with this email!");
+      }
+    } catch (checkError: any) {
+      
+      if (axios.isAxiosError(checkError) && checkError.response?.status === 404) {
+        // User not found, proceed to registration
+      } else {
+        throw checkError;
+      }
     }
 
     // 2. Create User
@@ -45,7 +53,11 @@ export const loginUser = async (email: string, password: string): Promise<User> 
     } else {
       throw new Error("Invalid email or password");
     }
-  } catch (error) {
+  } catch (error: any) {
+    // Handle 404 from MockAPI (User not found)
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      throw new Error("Invalid email or password");
+    }
     throw new Error(getErrorMessage(error));
   }
 };
