@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { loginUser } from '../services/api'; // Import the API function
+import { loginUser } from '../services/api'; 
 import { useAppDispatch } from '../redux/hooks';
 import { login } from '../redux/slices/authSlice';
 
@@ -49,7 +49,7 @@ export default function ProfileScreen() {
 
     // 3. Success!
     // Dispatch to Redux (if you are using it for global state)
-    dispatch(login({ name: user.name, email: user.email, avatar: user.avatar }));
+    dispatch(login(user));
     
     // Navigate to Home
     navigation.navigate('HomeScreen', { screen: 'HomeScreen' }); 

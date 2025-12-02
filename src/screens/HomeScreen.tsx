@@ -23,9 +23,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 import { addSearchTerm } from '../redux/slices/historySlice';
+import { fetchPlaces } from '../redux/slices/placesSlice';
 
 // --- UPDATE 1: Import API and Types ---
-import { getPlaces, Place } from '../services/api'; 
+import { Place } from '../services/types'; 
+import { getPlaces } from '../services/api';
 
 // Define Categories locally since they are just UI filters for now
 const CATEGORIES = [

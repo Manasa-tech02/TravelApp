@@ -16,8 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useAppDispatch } from '../redux/hooks';
-import { login } from '../redux/slices/authSlice';
-import { registerUser } from '../services/api';
+import { login, registerUser } from '../redux/slices/authSlice';
 
 
 export default function SignUpScreen() {
@@ -64,28 +63,26 @@ export default function SignUpScreen() {
     setIsLoading(true); // Start the spinner
     try {
       // Call the backend
-      const user = await registerUser(fullName, email, password);
+      const resultAction = await dispatch(registerUser({ name: fullName, email, password }));
       
-      // 3. AUTO-LOGIN (Dispatch to Redux)
-      // This is the part that makes it "like the previous one"
-      dispatch(login({ 
-        name: user.name, 
-        email: user.email, 
-        avatar: user.avatar 
-      }));
-
-      // Success Alert
-      Alert.alert(
-        "Welcome!", 
-        "Your account has been created successfully.",
-        [
-          { 
-            text: "Let's Go!", 
-            // Navigate STRAIGHT to Home (instead of Profile/Login)
-            onPress: () => navigation.navigate('HomeScreen', { screen: 'Profile' }) 
-          }
-        ]
-      );
+      if (registerUser.fulfilled.match(resultAction)) {
+        // Success Alert
+        Alert.alert(
+          "Welcome!", 
+          "Your account has been created successfully.",
+          [
+            { 
+              text: "Let's Go!", 
+              // Navigate STRAIGHT to Home (instead of Profile/Login)
+              onPress: () => navigation.navigate('HomeScreen', { screen: 'Profile' }) 
+            }
+          ]
+        );
+      } else {
+        // Failed
+        const errorMsg = resultAction.payload as string || "Registration failed";
+        throw new Error(errorMsg);
+      }
 
     } catch (error: any) {
       // Handle Errors (like "User already exists")

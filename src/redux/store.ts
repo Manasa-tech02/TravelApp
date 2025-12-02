@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import authReducer from './slices/authSlice';
 import favoritesReducer from './slices/favoritesSlice';
 import historyReducre from './slices/historySlice'
+import placesReducer from './slices/placesSlice';
 
 // 1. Combine Reducers
 // We merge auth and favorites into one big state object
@@ -23,13 +24,16 @@ const rootReducer = combineReducers({
   auth: authReducer,
   favorites: favoritesReducer,
   history: historyReducre,
+  places: placesReducer,
 });
 
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['auth', 'favorites', 'history'], 
+  whitelist: ['auth', 'favorites', 'history',
+    'places'
+  ], 
 };
 
 
