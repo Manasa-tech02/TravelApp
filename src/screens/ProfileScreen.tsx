@@ -35,30 +35,29 @@ export default function ProfileScreen() {
   const [isLoading,setIsLoading] = useState(false);
 
   const handleSignIn = async () => {
-  // 1. Basic Validation
+  
   if (!email || !password) {
     Alert.alert('Error', 'Please enter both email and password');
     return;
   }
 
-  setIsLoading(true); // Start spinner
+  setIsLoading(true); 
 
   try {
-    // 2. Call API
+   
     const user = await loginUser(email, password);
 
-    // 3. Success!
-    // Dispatch to Redux (if you are using it for global state)
+   
     dispatch(login(user));
     
-    // Navigate to Home
+   
     navigation.navigate('HomeScreen', { screen: 'HomeScreen' }); 
 
   } catch (error: any) {
-    // 4. Handle Error (Wrong password, etc.)
+  
     Alert.alert('Login Failed', error.message);
   } finally {
-    setIsLoading(false); // Stop spinner
+    setIsLoading(false); 
   }
 };
 
@@ -74,7 +73,7 @@ export default function ProfileScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Welcome Back</Text>
+        <Text style={styles.headerTitle}>Welcome</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>

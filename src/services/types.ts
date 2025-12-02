@@ -14,6 +14,10 @@ export interface Place {
   description: string;
   price: number;
   rating: number;
+  latitude: number;   
+  longitude: number; 
+  views: number;     
+  createdAt: string;
 }
 
 export interface ApiPlace {
@@ -24,4 +28,8 @@ export interface ApiPlace {
   image: string;
   description: string;
   price: string;
+  latitude: string;   // API usually sends coordinates as strings
+  longitude: string;  // API usually sends coordinates as strings
+  views: number;
+  createdAt: string;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -15,32 +15,33 @@ import {
   Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+// --- Redux Imports ---
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 import { addSearchTerm } from '../redux/slices/historySlice';
-import { fetchPlaces } from '../redux/slices/placesSlice';
+import { fetchPlaces } from '../redux/slices/placesSlice'; // Use the Thunk
 
-// --- UPDATE 1: Import API and Types ---
+// --- Types ---
 import { Place } from '../services/types'; 
-import { getPlaces } from '../services/placesService';
+import { SortCategory } from '../services/placesService'; // Import the type
 
-// Define Categories locally since they are just UI filters for now
-const CATEGORIES = [
-  { id: '1', name: 'Most Viewed' },
-  { id: '2', name: 'Nearby' },
-  { id: '3', name: 'Latest' },
-];
-
+// --- Navigation & Screens ---
 import FavoritesScreen from './FavoritesScreen';
 import HistoryScreen from './HistoryScreen';
 import ProfileScreen from './ProfileScreen';
-
 import { TabParamList } from '../navigation/types';
+
+// --- Define Categories with correct IDs for the API ---
+const CATEGORIES: { id: SortCategory; name: string }[] = [
+  { id: 'most_viewed', name: 'Most Viewed' },
+  { id: 'nearby', name: 'Nearby' },
+  { id: 'latest', name: 'Latest' },
+];
 
 type RootStackParamList = {
   Details: { place: Place };
@@ -53,39 +54,52 @@ const CARD_HEIGHT = CARD_WIDTH * 1.5;
 function HomeContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
+  
+  // --- 1. Use Redux State instead of Local State ---
+  const { items: places, loading } = useAppSelector((state) => state.places);
   const favorites = useAppSelector((state) => state.favorites.items);
   const user = useAppSelector((state) => state.auth.user);
   
-  const [activeCategory, setActiveCategory] = useState<string>('2');
+  // State for UI filters
+  const [activeCategory, setActiveCategory] = useState<SortCategory>('most_viewed');
   const [searchText, setSearchText] = useState('');
 
-  // --- UPDATE 2: Add State for Real Data ---
-  const [places, setPlaces] = useState<Place[]>([]);
-  const [loading, setLoading] = useState(true);
+  // --- 2. Unified Data Fetching Function ---
+  const loadData = useCallback(() => {
+    // We dispatch the Thunk with all necessary arguments
+    dispatch(fetchPlaces({
+      category: activeCategory,
+      searchQuery: searchText,
+      // NOTE: For 'nearby' to work, you need real GPS here. 
+      // passing default coordinates (San Francisco) for testing.
+      userLat: 37.7749, 
+      userLng: -122.4194
+    }));
+  }, [activeCategory, searchText, dispatch]);
 
-
+  // --- 3. Effects ---
+  
+  // Trigger fetch when Category changes
   useEffect(() => {
-   
+    loadData();
+  }, [activeCategory]);
+
+  // Trigger fetch when Search changes (with debounce)
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      loadPlaces(searchText);
+      loadData();
     }, 500);
 
-   
     return () => clearTimeout(delayDebounceFn);
-  }, [searchText]); // Run this effect whenever searchText changes
+  }, [searchText]); // Run when searchText changes
 
-  const loadPlaces = async (query?: string) => {
-    setLoading(true);
-    try {
-      const data = await getPlaces(query);
-      setPlaces(data.slice(0, 5));
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Could not load places from server");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Optional: Refetch when screen comes into focus (to ensure fresh data)
+  useFocusEffect(
+    useCallback(() => {
+      // Uncomment if you want auto-refresh on focus
+      // loadData(); 
+    }, [loadData])
+  );
 
   const getInitials = (name: string) => {
     if (!name) return 'U';
@@ -97,16 +111,12 @@ function HomeContent() {
   const handleSearchSubmit = () => {
     const trimmedText = searchText.trim();
     if (trimmedText) {
-      // Call API with search term
-      loadPlaces(trimmedText);
+      loadData();
       dispatch(addSearchTerm(trimmedText));
-    } else {
-      // If empty, reload all places
-      loadPlaces();
     }
   };
 
-  const renderCategory = ({ item }: { item: { id: string; name: string } }) => {
+  const renderCategory = ({ item }: { item: { id: SortCategory; name: string } }) => {
     const isActive = activeCategory === item.id;
     return (
       <TouchableOpacity 
@@ -135,7 +145,6 @@ function HomeContent() {
         onPress={() => navigation.navigate('Details', { place: item })}
         style={styles.cardContainer}
       >
-        {/* --- UPDATE 4: Use 'image' from Mapped Data --- */}
         <Image 
           source={{ uri: item.image }} 
           style={styles.cardImage} 
@@ -153,7 +162,6 @@ function HomeContent() {
         </TouchableOpacity>
 
         <View style={styles.cardOverlay}>
-           {/* Mapped data uses 'title' */}
            <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
            
            <View style={styles.cardFooterRow}>
@@ -200,7 +208,6 @@ function HomeContent() {
         <View style={styles.header}>
           <View>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              {/* This now comes from Redux User */}
               <Text style={styles.headerTitle}>Hi, {user?.name || 'Guest'}</Text>
               <Text style={{fontSize: 28}}>👋</Text>
             </View>
@@ -208,7 +215,6 @@ function HomeContent() {
           </View>
           
           <View style={styles.avatarContainer}>
-
            <Text style={styles.avatarText}>
              {getInitials(user?.name || 'Guest')}
             </Text>
@@ -245,7 +251,7 @@ function HomeContent() {
                 data={places}
                 renderItem={renderSearchResultItem}
                 keyExtractor={(item) => item.id}
-                scrollEnabled={false} // Let the parent ScrollView handle scrolling
+                scrollEnabled={false} 
                 ListEmptyComponent={
                   <Text style={styles.noResultsText}>No places found matching "{searchText}"</Text>
                 }
@@ -257,7 +263,7 @@ function HomeContent() {
             {/* Section Header */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Popular places</Text>
-              <TouchableOpacity onPress={() => loadPlaces()}>
+              <TouchableOpacity onPress={() => loadData()}>
                 <Text style={styles.viewAllText}>Refresh</Text>
               </TouchableOpacity>
             </View>
@@ -274,7 +280,7 @@ function HomeContent() {
               />
             </View>
 
-            {/* --- UPDATE 5: Real Data List with Spinner --- */}
+            {/* Places List (Horizontal) */}
             <View style={styles.placesContainer}>
               {loading ? (
                  <View style={{height: CARD_HEIGHT, justifyContent: 'center', alignItems: 'center'}}>
@@ -284,7 +290,7 @@ function HomeContent() {
               ) : (
                 <FlatList
                   horizontal
-                  data={places} // <--- USING REAL STATE
+                  data={places} 
                   renderItem={renderPlaceCard}
                   keyExtractor={(item) => item.id}
                   showsHorizontalScrollIndicator={false}
@@ -292,7 +298,7 @@ function HomeContent() {
                   snapToInterval={CARD_WIDTH + 20} 
                   decelerationRate="fast"
                   ListEmptyComponent={
-                    <Text style={{textAlign:'center', marginTop: 50, color:'#888'}}>
+                    <Text style={{textAlign:'center', marginTop: 50, color:'#888', width: width}}>
                       No places found in database.
                     </Text>
                   }
@@ -399,7 +405,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1A1A1A',
     paddingRight:15,
@@ -412,7 +418,6 @@ const styles = StyleSheet.create({
     
   },
   
-
   
   profileImage: {
     width: 50,

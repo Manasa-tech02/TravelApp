@@ -1,38 +1,51 @@
+
 import axios from 'axios';
 import { API_URL } from './config';
 import { User } from './types';
 
-
-export const registerUser = async (name: string, email: string, password: string) => {
-  // First, check if email already exists
-  const checkRes = await axios.get(`${API_URL}/users?email=${email}`);
-  const existingUsers = checkRes.data;
-
-  if (existingUsers.length > 0) {
-    throw new Error("User already exists with this email!");
+const getErrorMessage = (error: any): string => {
+  if (axios.isAxiosError(error)) {
+    if (error.response) {
+      return typeof error.response.data === 'string' ? error.response.data : error.response.statusText;
+    }
   }
-
-  // If unique, create the user
-  const response = await axios.post(`${API_URL}/users`, { 
-    name, 
-    email, 
-    password,
-    avatar: "default",
-  });
-
-  return response.data;
+  return error.message || "Something went wrong";
 };
 
-export const loginUser = async (email: string, password: string) => {
-  const response = await axios.get<User[]>(`${API_URL}/users?email=${email}`);
-  const users = response.data;
+export const registerUser = async (name: string, email: string, password: string): Promise<User> => {
+  try {
+    // 1. Check if user exists
+    const checkRes = await axios.get(`${API_URL}/users?email=${email}`);
+    
+    if (checkRes.data.length > 0) {
+      throw new Error("User already exists with this email!");
+    }
 
-  const user = users.find((u) => u.password === password);
+    // 2. Create User
+    const response = await axios.post(`${API_URL}/users`, { 
+      name, email, password, avatar: "default" 
+    });
 
-  if (user) {
-   
-    return user;
-  } else {
-    throw new Error("Invalid email or password");
+    return response.data;
+
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const loginUser = async (email: string, password: string): Promise<User> => {
+  try {
+    const response = await axios.get<User[]>(`${API_URL}/users?email=${email}`);
+    const users = response.data;
+
+    const user = users.find((u) => u.password === password);
+
+    if (user) {
+      return user;
+    } else {
+      throw new Error("Invalid email or password");
+    }
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
 };

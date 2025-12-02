@@ -30,7 +30,7 @@ export default function HistoryScreen() {
           onPress={() => dispatch(removeSearchTerm(item))}
           style={styles.deleteButton}
         >
-          <Ionicons name="close-circle-outline" size={22} color="#FF3D00" />
+          <Ionicons name="close-circle-outline" size={18} color="#0b0908ff" />
         </TouchableOpacity>
       </View>
     );
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   clearText: {
-    color: '#FF3D00',
+    color: '#1A1A1A',
     fontSize: 14,
     fontWeight: '600',
   },

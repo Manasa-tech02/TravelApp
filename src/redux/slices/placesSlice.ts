@@ -1,12 +1,23 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getPlaces } from '../../services/placesService';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { getPlaces, SortCategory } from '../../services/placesService';
 import { Place } from '../../services/types';
 
+
+interface FetchPlacesArgs {
+  category: SortCategory;
+  userLat?: number;     
+  userLng?: number;    
+  searchQuery?: string;
+}
+
+// 2. The Thunk (Async Action)
 export const fetchPlaces = createAsyncThunk(
   'places/fetchPlaces',
-  async (query: string | undefined, { rejectWithValue }) => {
+  // We accept the object defined above
+  async ({ category, userLat, userLng, searchQuery }: FetchPlacesArgs, { rejectWithValue }) => {
     try {
-      const places = await getPlaces(query);
+      // Call the updated Service logic
+      const places = await getPlaces(category, userLat, userLng, searchQuery);
       return places;
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -14,22 +25,31 @@ export const fetchPlaces = createAsyncThunk(
   }
 );
 
+// 3. The State Structure
 interface PlacesState {
   items: Place[];
   loading: boolean;
   error: string | null;
+  activeCategory: SortCategory; // Track the active tab
 }
 
 const initialState: PlacesState = {
   items: [],
   loading: false,
   error: null,
+  activeCategory: 'most_viewed', // Default startup tab
 };
 
+// 4. The Slice
 const placesSlice = createSlice({
   name: 'places',
   initialState,
-  reducers: {},
+  reducers: {
+    // Action to manually switch the active tab in Redux
+    setActiveCategory: (state, action: PayloadAction<SortCategory>) => {
+      state.activeCategory = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchPlaces.pending, (state) => {
       state.loading = true;
@@ -46,4 +66,6 @@ const placesSlice = createSlice({
   },
 });
 
+// Export the action so we can use it in HomeScreen
+export const { setActiveCategory } = placesSlice.actions;
 export default placesSlice.reducer;
