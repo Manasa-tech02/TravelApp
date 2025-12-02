@@ -63,10 +63,16 @@ function HomeContent() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // --- UPDATE 3: Fetch Data on Load ---
+
   useEffect(() => {
-    loadPlaces();
-  }, []);
+   
+    const delayDebounceFn = setTimeout(() => {
+      loadPlaces(searchText);
+    }, 500);
+
+   
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchText]); // Run this effect whenever searchText changes
 
   const loadPlaces = async (query?: string) => {
     setLoading(true);
@@ -166,6 +172,21 @@ function HomeContent() {
     );
   };
 
+  const renderSearchResultItem = ({ item }: { item: Place }) => (
+    <TouchableOpacity 
+      style={styles.searchResultItem}
+      onPress={() => navigation.navigate('Details', { place: item })}
+    >
+      <View style={styles.searchResultIcon}>
+        <Ionicons name="location-sharp" size={20} color="#666" />
+      </View>
+      <View>
+        <Text style={styles.searchResultTitle}>{item.title}</Text>
+        <Text style={styles.searchResultLocation}>{item.location}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" backgroundColor="#F9F9F9" />
@@ -214,51 +235,72 @@ function HomeContent() {
           </TouchableOpacity>
         </View>
 
-        {/* Section Header */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular places</Text>
-          <TouchableOpacity onPress={() => loadPlaces()}>
-            <Text style={styles.viewAllText}>Refresh</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Conditional Rendering: Search Results vs Home Content */}
+        {searchText.length > 0 ? (
+          <View style={styles.searchResultsContainer}>
+            {loading ? (
+              <ActivityIndicator size="large" color="#FF3D00" style={{marginTop: 20}} />
+            ) : (
+              <FlatList
+                data={places}
+                renderItem={renderSearchResultItem}
+                keyExtractor={(item) => item.id}
+                scrollEnabled={false} // Let the parent ScrollView handle scrolling
+                ListEmptyComponent={
+                  <Text style={styles.noResultsText}>No places found matching "{searchText}"</Text>
+                }
+              />
+            )}
+          </View>
+        ) : (
+          <>
+            {/* Section Header */}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Popular places</Text>
+              <TouchableOpacity onPress={() => loadPlaces()}>
+                <Text style={styles.viewAllText}>Refresh</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* Categories */}
-        <View style={styles.categoriesContainer}>
-          <FlatList
-            horizontal
-            data={CATEGORIES}
-            renderItem={renderCategory}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, gap: 15 }}
-          />
-        </View>
+            {/* Categories */}
+            <View style={styles.categoriesContainer}>
+              <FlatList
+                horizontal
+                data={CATEGORIES}
+                renderItem={renderCategory}
+                keyExtractor={(item) => item.id}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 20, gap: 15 }}
+              />
+            </View>
 
-        {/* --- UPDATE 5: Real Data List with Spinner --- */}
-        <View style={styles.placesContainer}>
-          {loading ? (
-             <View style={{height: CARD_HEIGHT, justifyContent: 'center', alignItems: 'center'}}>
-                <ActivityIndicator size="large" color="#FF3D00" />
-                <Text style={{color:'#888', marginTop: 10}}>Loading amazing places...</Text>
-             </View>
-          ) : (
-            <FlatList
-              horizontal
-              data={places} // <--- USING REAL STATE
-              renderItem={renderPlaceCard}
-              keyExtractor={(item) => item.id}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}
-              snapToInterval={CARD_WIDTH + 20} 
-              decelerationRate="fast"
-              ListEmptyComponent={
-                <Text style={{textAlign:'center', marginTop: 50, color:'#888'}}>
-                  No places found in database.
-                </Text>
-              }
-            />
-          )}
-        </View>
+            {/* --- UPDATE 5: Real Data List with Spinner --- */}
+            <View style={styles.placesContainer}>
+              {loading ? (
+                 <View style={{height: CARD_HEIGHT, justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size="large" color="#FF3D00" />
+                    <Text style={{color:'#888', marginTop: 10}}>Loading amazing places...</Text>
+                 </View>
+              ) : (
+                <FlatList
+                  horizontal
+                  data={places} // <--- USING REAL STATE
+                  renderItem={renderPlaceCard}
+                  keyExtractor={(item) => item.id}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}
+                  snapToInterval={CARD_WIDTH + 20} 
+                  decelerationRate="fast"
+                  ListEmptyComponent={
+                    <Text style={{textAlign:'center', marginTop: 50, color:'#888'}}>
+                      No places found in database.
+                    </Text>
+                  }
+                />
+              )}
+            </View>
+          </>
+        )}
 
       </ScrollView>
     </SafeAreaView>
@@ -282,7 +324,7 @@ export default function HomeScreen() {
           paddingTop: 10, 
           paddingBottom: Platform.OS === 'ios' ? 30 : 10,
         },
-        tabBarActiveTintColor: '#FF3D00', 
+        tabBarActiveTintColor: '#0c0b0bff', 
         tabBarInactiveTintColor: '#B0B0B0', 
       }}
     >
@@ -305,7 +347,7 @@ export default function HomeScreen() {
         options={{
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
              <View style={styles.iconContainer}>
-               <Ionicons name="time-outline" size={24} color={color} />
+               <Ionicons name={focused? "time" :"time-outline"}size={24} color={color} />
                {focused && <View style={styles.activeDot} />}
              </View>
           ),
@@ -331,7 +373,7 @@ export default function HomeScreen() {
         options={{
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
             <View style={styles.iconContainer}>
-              <Ionicons name="person-outline" size={24} color={color} />
+              <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
               {focused && <View style={styles.activeDot} />}
             </View>
           ),
@@ -352,7 +394,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 20,
     marginTop: 20,
   },
@@ -360,13 +402,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    paddingRight:10,
+    paddingRight:15,
   },
   headerSubtitle: {
     fontSize: 16,
     color: '#888',
     marginTop: 4,
     fontWeight: '500',
+    
   },
   
 
@@ -489,6 +532,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(20, 30, 40, 0.75)', 
     padding: 16,
     borderRadius: 18,
+    paddingRight:5,
     
   },
   cardTitle: {
@@ -538,7 +582,7 @@ const styles = StyleSheet.create({
     width: 6, 
     height: 6, 
     borderRadius: 3, 
-    backgroundColor: '#FF3D00', 
+    backgroundColor: '#1b1a19ff', 
     position: 'absolute',
     bottom: -6, 
   },
@@ -556,5 +600,40 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  
+  searchResultsContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EFEFEF',
+  },
+  searchResultIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F0F0F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  searchResultTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 2,
+  },
+  searchResultLocation: {
+    fontSize: 14,
+    color: '#888',
+  },
+  noResultsText: {
+    textAlign: 'center',
+    marginTop: 30,
+    color: '#888',
+    fontSize: 16,
+  },
 });
