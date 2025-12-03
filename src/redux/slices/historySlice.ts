@@ -1,34 +1,43 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface HistoryItem {
+  id: string;
+  title: string;
+  location: string;
+}
+
 interface HistoryState {
-  searches: string[];
+  items: HistoryItem[];
 }
 
 const initialState: HistoryState = {
-  searches: [],
+  items: [],
 };
 
 const historySlice = createSlice({
   name: 'history',
   initialState,
   reducers: {
-    addSearchTerm: (state, action: PayloadAction<string>) => {
-      const term = action.payload;
-      // Prevent duplicates: Remove if exists, then add to top
-      state.searches = state.searches.filter(t => t !== term);
-      state.searches.unshift(term); // Add to beginning
+    addToHistory: (state, action: PayloadAction<HistoryItem>) => {
+      if (!state.items) state.items = [];
+      const newItem = action.payload;
+      // Prevent duplicates: Remove if exists (by ID), then add to top
+      state.items = state.items.filter(item => item.id !== newItem.id);
+      state.items.unshift(newItem);
       
-      // Optional: Limit history to 10 items
-      if (state.searches.length > 10) state.searches.pop();
+      // Limit history to 10 items
+      if (state.items.length > 10) state.items.pop();
     },
-    removeSearchTerm: (state, action: PayloadAction<string>) => {
-      state.searches = state.searches.filter(t => t !== action.payload);
+    removeFromHistory: (state, action: PayloadAction<string>) => {
+      if (!state.items) return;
+      // Remove by ID
+      state.items = state.items.filter(item => item.id !== action.payload);
     },
     clearHistory: (state) => {
-      state.searches = [];
+      state.items = [];
     }
   },
 });
 
-export const { addSearchTerm, removeSearchTerm, clearHistory } = historySlice.actions;
+export const { addToHistory, removeFromHistory, clearHistory } = historySlice.actions;
 export default historySlice.reducer;

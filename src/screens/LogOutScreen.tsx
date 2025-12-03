@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   avatarContainer: {
     height: 96,
     width: 96,
-    backgroundColor: '#F97316', // orange-500
+    backgroundColor: '#326ca5ff',
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   logoutButton: {
-    backgroundColor: '#EF4444', // red-500
+    backgroundColor:'#326ca5ff', // red-500
     width: '100%',
     paddingVertical: 16,
     borderRadius: 16,

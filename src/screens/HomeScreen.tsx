@@ -23,7 +23,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // --- Redux Imports ---
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
-import { addSearchTerm } from '../redux/slices/historySlice';
+import { addToHistory } from '../redux/slices/historySlice';
 import { fetchPlaces } from '../redux/slices/placesSlice'; // Use the Thunk
 
 // --- Types ---
@@ -60,7 +60,7 @@ function HomeContent() {
   const favorites = useAppSelector((state) => state.favorites.items);
   const user = useAppSelector((state) => state.auth.user);
   
-  // State for UI filters
+  
   const [activeCategory, setActiveCategory] = useState<SortCategory>('most_viewed');
   const [searchText, setSearchText] = useState('');
 
@@ -108,7 +108,7 @@ function HomeContent() {
     const trimmedText = searchText.trim();
     if (trimmedText) {
       loadData();
-      dispatch(addSearchTerm(trimmedText));
+      // dispatch(addToHistory(trimmedText)); // Only adding clicked items to history now
     }
   };
 
@@ -179,7 +179,14 @@ function HomeContent() {
   const renderSearchResultItem = ({ item }: { item: Place }) => (
     <TouchableOpacity 
       style={styles.searchResultItem}
-      onPress={() => navigation.navigate('Details', { place: item })}
+      onPress={() => {
+        dispatch(addToHistory({
+          id: item.id,
+          title: item.title,
+          location: item.location
+        }));
+        navigation.navigate('Details', { place: item });
+      }}
     >
       <View style={styles.searchResultIcon}>
         <Ionicons name="location-sharp" size={20} color="#666" />
@@ -419,6 +426,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    paddingRight:5,
   },
   searchContainer: {
     flexDirection: 'row',

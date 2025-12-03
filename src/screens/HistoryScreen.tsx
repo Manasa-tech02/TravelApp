@@ -12,25 +12,30 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Redux
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
-import { removeSearchTerm, clearHistory } from '../redux/slices/historySlice';
+import { removeFromHistory, clearHistory, HistoryItem } from '../redux/slices/historySlice';
 
 export default function HistoryScreen() {
   const dispatch = useAppDispatch();
-  const history = useAppSelector((state) => state.history.searches);
+  const history = useAppSelector((state) => state.history.items || []);
 
-  const renderHistoryItem = ({ item }: { item: string }) => {
+  const renderHistoryItem = ({ item }: { item: HistoryItem }) => {
     return (
       <View style={styles.historyItem}>
         <View style={styles.itemLeft}>
-          <Ionicons name="time-outline" size={20} color="#888" />
-          <Text style={styles.historyText}>{item}</Text>
+          <View style={styles.iconContainer}>
+             <Ionicons name="location-sharp" size={20} color="#666" />
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={styles.historyTitle}>{item.title}</Text>
+            <Text style={styles.historyLocation}>{item.location}</Text>
+          </View>
         </View>
         
         <TouchableOpacity 
-          onPress={() => dispatch(removeSearchTerm(item))}
+          onPress={() => dispatch(removeFromHistory(item.id))}
           style={styles.deleteButton}
         >
-          <Ionicons name="close-circle-outline" size={18} color="#0b0908ff" />
+          <Ionicons name="close-circle-outline" size={18} color="#10100fff" />
         </TouchableOpacity>
       </View>
     );
@@ -41,7 +46,7 @@ export default function HistoryScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#F9F9F9" />
       
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Search History</Text>
+        <Text style={styles.headerTitle}>Recently Viewed</Text>
         {history.length > 0 && (
           <TouchableOpacity onPress={() => dispatch(clearHistory())}>
             <Text style={styles.clearText}>Clear All</Text>
@@ -51,15 +56,15 @@ export default function HistoryScreen() {
 
       {history.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="search-outline" size={80} color="#DDD" />
-          <Text style={styles.emptyText}>No recent searches</Text>
-          <Text style={styles.emptySubText}>Search for places in the Home screen</Text>
+          <Ionicons name="time-outline" size={80} color="#DDD" />
+          <Text style={styles.emptyText}>No recent history</Text>
+          <Text style={styles.emptySubText}>Places you view will appear here</Text>
         </View>
       ) : (
         <FlatList
           data={history}
           renderItem={renderHistoryItem}
-          keyExtractor={(item, index) => item + index}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
   },
   clearText: {
-    color: '#1A1A1A',
+    color: '#111010ff',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -115,10 +120,26 @@ const styles = StyleSheet.create({
     gap: 12,
     flex: 1,
   },
-  historyText: {
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  historyTitle: {
     fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
+    color: '#1A1A1A',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  historyLocation: {
+    fontSize: 14,
+    color: '#888',
   },
   deleteButton: {
     padding: 4,
