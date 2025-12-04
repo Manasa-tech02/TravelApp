@@ -60,13 +60,13 @@ export default function SignUpScreen() {
     }
 
     // 2. THE API CALL
-    setIsLoading(true); // Start the spinner
+    setIsLoading(true); 
     try {
-      // Call the backend
+   
       const resultAction = await dispatch(registerUser({ name: fullName, email, password }));
       
       if (registerUser.fulfilled.match(resultAction)) {
-        // Success Alert
+       
         Alert.alert(
           "Welcome!", 
           "Your account has been created successfully.",
