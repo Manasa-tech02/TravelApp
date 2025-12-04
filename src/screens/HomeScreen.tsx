@@ -36,6 +36,10 @@ import HistoryScreen from './HistoryScreen';
 import ProfileScreen from './ProfileScreen';
 import { TabParamList } from '../navigation/types';
 
+// --- Components ---
+import CategoryItem from '../components/CategoryItem';
+import PlaceCard from '../components/PlaceCard';
+
 // --- Define Categories with correct IDs for the API ---
 const CATEGORIES: { id: SortCategory; name: string }[] = [
   { id: 'most_viewed', name: 'Most Viewed' },
@@ -74,12 +78,13 @@ function HomeContent() {
       userLat: 37.7749, 
       userLng: -122.4194
     }));
-  }, [activeCategory, searchText, dispatch]);
+  }, [searchText, dispatch, activeCategory]);
 
 
   useEffect(() => {
     loadData();
   }, [activeCategory]);
+
 
 
   useEffect(() => {
@@ -112,69 +117,39 @@ function HomeContent() {
     }
   };
 
-  const renderCategory = ({ item }: { item: { id: SortCategory; name: string } }) => {
-    const isActive = activeCategory === item.id;
-    return (
-      <TouchableOpacity 
-        onPress={() => setActiveCategory(item.id)}
-        style={[
-          styles.categoryItem, 
-          isActive && styles.categoryItemActive
-        ]}
-      >
-        <Text style={[
-          styles.categoryText, 
-          isActive && styles.categoryTextActive
-        ]}>
-          {item.name}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
+  const handleCategoryPress = useCallback((id: SortCategory) => {
+    setActiveCategory(id);
+  }, []);
 
-  const renderPlaceCard = ({ item }: { item: Place }) => {
+  const renderCategory = useCallback(({ item }: { item: { id: SortCategory; name: string } }) => {
+    return (
+      <CategoryItem 
+        item={item} 
+        isActive={activeCategory === item.id}
+        onPress={handleCategoryPress}
+      />
+    );
+  }, [activeCategory, handleCategoryPress]);
+
+  const handlePlacePress = useCallback((item: Place) => {
+    navigation.navigate('Details', { place: item });
+  }, [navigation]);
+
+  const handleToggleFavorite = useCallback((item: Place) => {
+    dispatch(toggleFavorite(item));
+  }, [dispatch]);
+
+  const renderPlaceCard = useCallback(({ item }: { item: Place }) => {
     const isFavorite = favorites.some((fav) => fav.id === item.id);
-
     return (
-      <TouchableOpacity 
-        activeOpacity={0.9}
-        onPress={() => navigation.navigate('Details', { place: item })}
-        style={styles.cardContainer}
-      >
-        <Image 
-          source={{ uri: item.image }} 
-          style={styles.cardImage} 
-        />
-
-        <TouchableOpacity 
-          style={styles.cardIconContainer}
-          onPress={() => dispatch(toggleFavorite(item))}
-        >
-           <Ionicons 
-             name={isFavorite ? "heart" : "heart-outline"} 
-             size={20} 
-             color={isFavorite ? "red" : "white"} 
-           />
-        </TouchableOpacity>
-
-        <View style={styles.cardOverlay}>
-           <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-           
-           <View style={styles.cardFooterRow}>
-             <View style={styles.cardLocationRow}>
-               <Ionicons name="location-outline" size={14} color="#D1D1D1" />
-               <Text style={styles.cardLocation} numberOfLines={1}>{item.location}</Text>
-             </View>
-
-             <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={12} color="#FFD700" />
-                <Text style={styles.ratingText}>{item.rating}</Text>
-             </View>
-           </View>
-        </View>
-      </TouchableOpacity>
+      <PlaceCard
+        item={item}
+        isFavorite={isFavorite}
+        onPress={handlePlacePress}
+        onToggleFavorite={handleToggleFavorite}
+      />
     );
-  };
+  }, [favorites, handlePlacePress, handleToggleFavorite]);
 
   const renderSearchResultItem = ({ item }: { item: Place }) => (
     <TouchableOpacity 
