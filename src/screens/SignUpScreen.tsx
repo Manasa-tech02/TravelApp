@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -12,7 +12,7 @@ import {
   Alert,ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useAppDispatch } from '../redux/hooks';
@@ -36,6 +36,23 @@ export default function SignUpScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading,setIsLoading] = useState(false)
+
+  // Clear form when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      // This function runs when the screen is focused
+      return () => {
+        // This function runs when the screen is unfocused (blurred)
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setAgreeTerms(false);
+        setShowPassword(false);
+        setShowConfirmPassword(false);
+      };
+    }, [])
+  );
 
   const handleSignUp = async () => {
     // 1. Basic Validation

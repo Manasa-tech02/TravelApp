@@ -262,7 +262,7 @@ function HomeContent() {
             <View style={styles.placesContainer}>
               {loading ? (
                  <View style={{height: CARD_HEIGHT, justifyContent: 'center', alignItems: 'center'}}>
-                    <ActivityIndicator size="large" color="#FF3D00" />
+                    <ActivityIndicator size="large" color="#0c0c0bff" />
                     <Text style={{color:'#888', marginTop: 10}}>Loading amazing places...</Text>
                  </View>
               ) : (

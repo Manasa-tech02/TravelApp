@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -13,7 +13,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { loginUser } from '../services/authService'; 
@@ -35,6 +35,19 @@ export default function ProfileScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading,setIsLoading] = useState(false);
+
+  
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+       
+        setEmail('');
+        setPassword('');
+        setShowPassword(false);
+        setRememberMe(false);
+      };
+    }, [])
+  );
 
   const handleSignIn = async () => {
   

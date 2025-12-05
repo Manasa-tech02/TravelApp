@@ -27,9 +27,12 @@ const OverviewScreen = () => {
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
   const isFavorite = favorites.some((item) => item.id === place.id);
+  
 
   const temperature = 25;
   const duration = '5 hours';
+
+  const [activeTab, setActiveTab] = useState<'Overview' | 'Details'>('Overview');
 
   const handleToggleFavorite = () => {
     dispatch(toggleFavorite(place));
@@ -85,33 +88,39 @@ const OverviewScreen = () => {
       {/* Content Section */}
       <View style={styles.contentContainer}>
         <View style={styles.tabsContainer}>
-          <Text style={[styles.tabText, styles.activeTab]}>Overview</Text>
-          <Text style={styles.tabText}>Details</Text>
+          <TouchableOpacity onPress={() => setActiveTab('Overview')}>
+            <Text style={[styles.tabText, activeTab === 'Overview' && styles.activeTab]}>Overview</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => setActiveTab('Details')}>
+            <Text style={[styles.tabText, activeTab === 'Details' && styles.activeTab]}>Details</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.statsRow}>
-          <View style={styles.statItem}>
+          <TouchableOpacity style={styles.statItem}>
             <View style={styles.statIconContainer}>
               <Ionicons name="time" size={20} color="#060801ff" />
             </View>
             <Text style={styles.statText}>{duration}</Text>
-          </View>
+          </TouchableOpacity>
+
           
-          <View style={styles.statItem}>
+          <TouchableOpacity style={styles.statItem}>
             <View style={styles.statIconContainer}>
               <Ionicons name="cloud" size={20} color="#060801ff" />
             </View>
             <Text style={styles.statText}>
               {temperature} °C
             </Text>
-          </View>
+          </TouchableOpacity>
           
-          <View style={styles.statItem}>
+          <TouchableOpacity style={styles.statItem}>
             <View style={styles.statIconContainer}>
               <Ionicons name="star" size={20} color="#060801ff" />
             </View>
             <Text style={styles.statText}>{place.rating}</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} style={styles.descriptionContainer}>
@@ -182,7 +191,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     right: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)', 
+    backgroundColor: 'rgba(25, 28, 24, 0.66)', 
     borderRadius: 20,
     padding: 20,
    
@@ -243,27 +252,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+  
+    
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#e8edf1ff',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
+    opacity:0.8,
   },
   statIconContainer: {
     marginRight: 8,
   },
   statText: {
-    color: '#151313ff',
+    color: '#0c0c0cff',
     fontWeight: '500',
   },
   descriptionContainer: {
     flex: 1,
   },
   descriptionText: {
-    color: '#888',
+    color: '#706e6eff',
     lineHeight: 22,
     fontSize: 14,
   },

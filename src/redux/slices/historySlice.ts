@@ -25,12 +25,12 @@ const historySlice = createSlice({
       state.items = state.items.filter(item => item.id !== newItem.id);
       state.items.unshift(newItem);
       
-      // Limit history to 20 items
+   
       if (state.items.length > 20) state.items.pop();
     },
     removeFromHistory: (state, action: PayloadAction<string>) => {
       if (!state.items) return;
-      // Remove by ID
+     
       state.items = state.items.filter(item => item.id !== action.payload);
     },
     clearHistory: (state) => {

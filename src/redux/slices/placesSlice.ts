@@ -10,15 +10,23 @@ interface FetchPlacesArgs {
   searchQuery?: string;
 }
 
-// 2. The Thunk (Async Action)
+
 export const fetchPlaces = createAsyncThunk(
   'places/fetchPlaces',
-  // We accept the object defined above
-  async ({ category, userLat, userLng, searchQuery }: FetchPlacesArgs, { rejectWithValue }) => {
+  async (
+    { category, userLat, userLng, searchQuery }: FetchPlacesArgs,
+    { rejectWithValue, getState }
+  ) => {
     try {
-      // Call the updated Service logic
+      const state = getState() as { places: PlacesState };
+      const cachedItems = state.places.cache[category];
+
+      if (!searchQuery && cachedItems.length > 0) {
+        return { items: cachedItems, fromCache: true, category };
+      }
+
       const places = await getPlaces(category, userLat, userLng, searchQuery);
-      return places;
+      return { items: places, fromCache: false, category, searchQuery };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -30,14 +38,21 @@ interface PlacesState {
   items: Place[];
   loading: boolean;
   error: string | null;
-  activeCategory: SortCategory; // Track the active tab
+  activeCategory: SortCategory; 
+  cache: Record<SortCategory, Place[]>; 
+
 }
 
 const initialState: PlacesState = {
   items: [],
   loading: false,
   error: null,
-  activeCategory: 'most_viewed', // Default startup tab
+  activeCategory: 'most_viewed', 
+  cache: {
+    most_viewed: [],
+    nearby: [],
+    latest: [],
+  },
 };
 
 // 4. The Slice
@@ -45,19 +60,24 @@ const placesSlice = createSlice({
   name: 'places',
   initialState,
   reducers: {
-    // Action to manually switch the active tab in Redux
+    
     setActiveCategory: (state, action: PayloadAction<SortCategory>) => {
       state.activeCategory = action.payload;
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchPlaces.pending, (state) => {
-      state.loading = true;
+    builder.addCase(fetchPlaces.pending, (state, action) => {
+      const comingFromCache = state.cache[action.meta.arg.category].length > 0 && !action.meta.arg.searchQuery;
+      state.loading = !comingFromCache;
       state.error = null;
     });
     builder.addCase(fetchPlaces.fulfilled, (state, action) => {
       state.loading = false;
-      state.items = action.payload;
+      state.items = action.payload.items;
+
+      if (!action.payload.fromCache && !action.payload.searchQuery) {
+        state.cache[action.payload.category] = action.payload.items;
+      }
     });
     builder.addCase(fetchPlaces.rejected, (state, action) => {
       state.loading = false;
@@ -66,6 +86,6 @@ const placesSlice = createSlice({
   },
 });
 
-// Export the action so we can use it in HomeScreen
+
 export const { setActiveCategory } = placesSlice.actions;
 export default placesSlice.reducer;
