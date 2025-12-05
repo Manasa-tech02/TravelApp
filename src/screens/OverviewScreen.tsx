@@ -15,13 +15,13 @@ import { RootStackParamList } from '../navigation/types';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 
-type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
+type OverviewScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
 
 const { width, height } = Dimensions.get('window');
 
-const DetailsScreen = () => {
+const OverviewScreen = () => {
   const navigation = useNavigation();
-  const route = useRoute<DetailsScreenRouteProp>();
+  const route = useRoute<OverviewScreenRouteProp>();
   const { place } = route.params;
 
   const dispatch = useAppDispatch();
@@ -37,7 +37,7 @@ const DetailsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
       
       {/* Top Image Section */}
       <View style={styles.imageContainer}>
@@ -92,14 +92,14 @@ const DetailsScreen = () => {
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <View style={styles.statIconContainer}>
-              <Ionicons name="time" size={20} color="#666" />
+              <Ionicons name="time" size={20} color="#060801ff" />
             </View>
             <Text style={styles.statText}>{duration}</Text>
           </View>
           
           <View style={styles.statItem}>
             <View style={styles.statIconContainer}>
-              <Ionicons name="cloud" size={20} color="#666" />
+              <Ionicons name="cloud" size={20} color="#060801ff" />
             </View>
             <Text style={styles.statText}>
               {temperature} °C
@@ -108,7 +108,7 @@ const DetailsScreen = () => {
           
           <View style={styles.statItem}>
             <View style={styles.statIconContainer}>
-              <Ionicons name="star" size={20} color="#666" />
+              <Ionicons name="star" size={20} color="#060801ff" />
             </View>
             <Text style={styles.statText}>{place.rating}</Text>
           </View>
@@ -140,19 +140,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   imageContainer: {
-    height: height * 0.5, // Takes up half the screen
+    height: height * 0.5, 
     width: '100%',
     position: 'relative',
+    borderRadius:30,
+    // marginBlock:30,
+    // margin:10,
+    padding:10,
+    paddingTop:40,
+    // borderRadius:10,
+
+   
   },
   image: {
     width: '100%',
     height: '100%',
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   header: {
     position: 'absolute',
-    top: 40,
+    top: 60,
     left: 20,
     right: 20,
     flexDirection: 'row',
@@ -172,10 +182,10 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     right: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)', // Dark semi-transparent background
+    backgroundColor: 'rgba(0,0,0,0.6)', 
     borderRadius: 20,
     padding: 20,
-    //backdropFilter: 'blur(10px)', // Works on iOS, ignored on Android
+   
   },
   infoCardContent: {
     flexDirection: 'row',
@@ -201,6 +211,7 @@ const styles = StyleSheet.create({
     color: '#ddd',
     fontSize: 12,
     textAlign: 'right',
+    paddingRight:5,
   },
   priceValue: {
     color: '#d4a373', // Gold/Orange color
@@ -281,4 +292,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DetailsScreen;
+export default OverviewScreen;

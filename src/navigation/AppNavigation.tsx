@@ -8,7 +8,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 
 
 import { RootStackParamList } from './types';
-import DetailsScreen from '../screens/DetailsScreen';
+import OverviewScreen from '../screens/OverviewScreen';
 import HomeScreen from '../screens/HomeScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 
@@ -34,7 +34,7 @@ export default function AppNavigator() {
        
         <Stack.Screen 
           name="Details" 
-          component={DetailsScreen} 
+          component={OverviewScreen} 
           options={{ presentation: 'card' }}
         />
 
