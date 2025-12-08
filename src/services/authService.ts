@@ -23,7 +23,7 @@ export const registerUser = async (name: string, email: string, password: string
     } catch (checkError: any) {
       
       if (axios.isAxiosError(checkError) && checkError.response?.status === 404) {
-        
+        // User not found, proceed to registration
       } else {
         throw checkError;
       }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { SortCategory } from '../services/placesService';
+import { SortCategory } from '../services/placesApi';
 
 interface CategoryItemProps {
   item: { id: SortCategory; name: string };

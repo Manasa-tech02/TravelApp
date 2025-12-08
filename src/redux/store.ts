@@ -17,7 +17,7 @@ import authReducer from './slices/authSlice';
 import favoritesReducer from './slices/favoritesSlice';
 import historyReducre from './slices/historySlice'
 import placesReducer from './slices/placesSlice';
-
+import { placesApi } from '../services/placesApi';
 
 const authPersistConfig = {
   key: 'auth',
@@ -33,6 +33,7 @@ const rootReducer = combineReducers({
   favorites: favoritesReducer,
   history: historyReducre,
   places: placesReducer,
+  [placesApi.reducerPath]: placesApi.reducer,
 });
 
 
@@ -54,7 +55,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
+    }).concat(placesApi.middleware),
 });
 
 

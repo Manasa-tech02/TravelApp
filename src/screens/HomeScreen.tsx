@@ -24,11 +24,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 import { addToHistory } from '../redux/slices/historySlice';
-import { fetchPlaces, setActiveCategory } from '../redux/slices/placesSlice'; // Use the Thunk
+import { setActiveCategory } from '../redux/slices/placesSlice';
+import { useGetPlacesQuery } from '../services/placesApi';
 
 // --- Types ---
 import { Place } from '../services/types'; 
-import { SortCategory } from '../services/placesService'; // Import the type
+import { SortCategory } from '../services/placesApi';
 
 // --- Navigation & Screens ---
 import FavoritesScreen from './FavoritesScreen';
@@ -61,49 +62,30 @@ function HomeContent() {
   const listRef = useRef<FlatList<Place>>(null);
   
   // --- 1. Use Redux State instead of Local State ---
-  const { items: places, loading, activeCategory } = useAppSelector((state) => state.places);
+  const { activeCategory } = useAppSelector((state) => state.places);
   const favorites = useAppSelector((state) => state.favorites.items);
   const user = useAppSelector((state) => state.auth.user);
   
   const [searchText, setSearchText] = useState('');
+  const [debouncedSearchText, setDebouncedSearchText] = useState('');
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchText]);
 
-  const loadData = useCallback(() => {
-    
-    dispatch(fetchPlaces({
-      category: activeCategory,
-      searchQuery: searchText,
-   
-      userLat: 37.7749, 
-      userLng: -122.4194
-    }));
-  }, [searchText, dispatch, activeCategory]);
+  const { data: places = [], isLoading: loading, error, refetch } = useGetPlacesQuery({
+    category: activeCategory,
+    searchQuery: debouncedSearchText,
+    userLat: 37.7749,
+    userLng: -122.4194
+  });
 
   useEffect(() => {
     dispatch(setActiveCategory('most_viewed'));
   }, [dispatch]);
-
-
-  useEffect(() => {
-    loadData();
-  }, [activeCategory]);
-
-
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      loadData();
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchText]); 
-
- 
-  useFocusEffect(
-    useCallback(() => {
-      
-    }, [loadData])
-  );
 
   const getInitials = (name: string) => {
     if (!name) return 'U';
@@ -115,7 +97,7 @@ function HomeContent() {
   const handleSearchSubmit = () => {
     const trimmedText = searchText.trim();
     if (trimmedText) {
-      loadData();
+      setDebouncedSearchText(trimmedText);
       // dispatch(addToHistory(trimmedText)); // Only adding clicked items to history now
     }
   };
@@ -247,7 +229,7 @@ function HomeContent() {
               <Text style={styles.sectionTitle}>Popular places</Text>
               <TouchableOpacity onPress={() => {
                 listRef.current?.scrollToOffset({ offset: 0, animated: true });
-                loadData();
+                refetch();
               }}>
                 <Text style={styles.viewAllText}>Refresh</Text>
               </TouchableOpacity>
