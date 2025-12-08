@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -24,7 +24,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
 import { addToHistory } from '../redux/slices/historySlice';
-import { fetchPlaces } from '../redux/slices/placesSlice'; // Use the Thunk
+import { fetchPlaces, setActiveCategory } from '../redux/slices/placesSlice'; // Use the Thunk
 
 // --- Types ---
 import { Place } from '../services/types'; 
@@ -36,11 +36,11 @@ import HistoryScreen from './HistoryScreen';
 import ProfileScreen from './ProfileScreen';
 import { TabParamList } from '../navigation/types';
 
-// --- Components ---
+
 import CategoryItem from '../components/CategoryItem';
 import PlaceCard from '../components/PlaceCard';
 
-// --- Define Categories with correct IDs for the API ---
+
 const CATEGORIES: { id: SortCategory; name: string }[] = [
   { id: 'most_viewed', name: 'Most Viewed' },
   { id: 'nearby', name: 'Nearby' },
@@ -58,14 +58,13 @@ const CARD_HEIGHT = CARD_WIDTH * 1.5;
 function HomeContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
+  const listRef = useRef<FlatList<Place>>(null);
   
   // --- 1. Use Redux State instead of Local State ---
-  const { items: places, loading } = useAppSelector((state) => state.places);
+  const { items: places, loading, activeCategory } = useAppSelector((state) => state.places);
   const favorites = useAppSelector((state) => state.favorites.items);
   const user = useAppSelector((state) => state.auth.user);
   
-  
-  const [activeCategory, setActiveCategory] = useState<SortCategory>('most_viewed');
   const [searchText, setSearchText] = useState('');
 
 
@@ -79,6 +78,10 @@ function HomeContent() {
       userLng: -122.4194
     }));
   }, [searchText, dispatch, activeCategory]);
+
+  useEffect(() => {
+    dispatch(setActiveCategory('most_viewed'));
+  }, [dispatch]);
 
 
   useEffect(() => {
@@ -118,8 +121,9 @@ function HomeContent() {
   };
 
   const handleCategoryPress = useCallback((id: SortCategory) => {
-    setActiveCategory(id);
-  }, []);
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+    dispatch(setActiveCategory(id));
+  }, [dispatch]);
 
   const renderCategory = useCallback(({ item }: { item: { id: SortCategory; name: string } }) => {
     return (
@@ -219,7 +223,7 @@ function HomeContent() {
           </TouchableOpacity>
         </View>
 
-        {/* Conditional Rendering: Search Results vs Home Content */}
+        
         {searchText.length > 0 ? (
           <View style={styles.searchResultsContainer}>
             {loading ? (
@@ -241,7 +245,10 @@ function HomeContent() {
             {/* Section Header */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Popular places</Text>
-              <TouchableOpacity onPress={() => loadData()}>
+              <TouchableOpacity onPress={() => {
+                listRef.current?.scrollToOffset({ offset: 0, animated: true });
+                loadData();
+              }}>
                 <Text style={styles.viewAllText}>Refresh</Text>
               </TouchableOpacity>
             </View>
@@ -267,6 +274,7 @@ function HomeContent() {
                  </View>
               ) : (
                 <FlatList
+                  ref={listRef}
                   horizontal
                   data={places} 
                   renderItem={renderPlaceCard}

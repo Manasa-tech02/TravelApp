@@ -45,7 +45,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // Keep these for backward compatibility if needed, or remove if fully migrating
+    
     login: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
       state.isAuthenticated = true;

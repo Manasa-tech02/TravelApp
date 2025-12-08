@@ -24,12 +24,12 @@ export const getPlaces = async (
     params.search = searchQuery;
   }
 
-  // Handle Server-Side Sorting (Views & Latest)
+  // Apply category-specific sorting rules before hitting the API
   if (category === 'most_viewed') {
-    params.sortBy = 'views';
-    params.order = 'desc'; 
+    params.sortBy = 'views';       // Highest view counts first
+    params.order = 'desc';
   } else if (category === 'latest') {
-    params.sortBy = 'createdAt';
+    params.sortBy = 'createdAt';   // Newest items first
     params.order = 'desc';
   }
 

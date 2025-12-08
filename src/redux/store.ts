@@ -9,33 +9,41 @@ import {
   PURGE, 
   REGISTER 
 } from 'redux-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import secureStorage from './secureStorage';
 
-// Import your slices
+
 import authReducer from './slices/authSlice';
 import favoritesReducer from './slices/favoritesSlice';
 import historyReducre from './slices/historySlice'
 import placesReducer from './slices/placesSlice';
 
 
+const authPersistConfig = {
+  key: 'auth',
+  storage: secureStorage,
+  keyPrefix: 'persist_',
+};
+
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+
+
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistedAuthReducer,
   favorites: favoritesReducer,
   history: historyReducre,
   places: placesReducer,
 });
 
 
-const persistConfig = {
+const rootPersistConfig = { 
   key: 'root',
-  storage: secureStorage,
-  whitelist: ['auth', 'favorites', 'history',
-    'places'
-  ], 
+  storage: AsyncStorage,
+  whitelist: ['favorites', 'history', 'places'],
 };
 
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 
 
 export const store = configureStore({
