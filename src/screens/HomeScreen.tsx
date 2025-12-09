@@ -198,6 +198,11 @@ function HomeContent() {
               onSubmitEditing={handleSearchSubmit}
               returnKeyType="search"
             />
+            {searchText.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchText('')} style={{ marginLeft: 5 }}>
+                <Ionicons name="close-circle" size={24} color="#b5b2b2ff" />
+              </TouchableOpacity>
+            )}
           </View>
           <View style={styles.filterDivider} />
           <TouchableOpacity style={styles.filterButton}>
@@ -299,7 +304,7 @@ export default function HomeScreen() {
           shadowOpacity: 0,
           height: Platform.OS === 'ios' ? 90 : 70, 
           paddingTop: 10, 
-          paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+          paddingBottom: Platform.OS === 'ios' ? 30: 30,
         },
         tabBarActiveTintColor: '#0c0b0bff', 
         tabBarInactiveTintColor: '#B0B0B0', 
