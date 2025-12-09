@@ -19,7 +19,7 @@ export const placesApi = createApi({
     getPlaces: builder.query<Place[], GetPlacesArgs>({
       query: ({ category, searchQuery }) => {
         const params: Record<string, string> = {};
-        
+
         if (searchQuery) {
           params.search = searchQuery;
         }

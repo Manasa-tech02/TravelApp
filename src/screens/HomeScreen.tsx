@@ -247,7 +247,7 @@ function HomeContent() {
               />
             </View>
 
-            {/* Places List (Horizontal) */}
+           
             <View style={styles.placesContainer}>
               {loading ? (
                  <View style={{height: CARD_HEIGHT, justifyContent: 'center', alignItems: 'center'}}>
@@ -258,13 +258,16 @@ function HomeContent() {
                 <FlatList
                   ref={listRef}
                   horizontal
-                  data={places} 
+                  data={places}
                   renderItem={renderPlaceCard}
                   keyExtractor={(item) => item.id}
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}
-                  snapToInterval={CARD_WIDTH + 20} 
+                  snapToInterval={CARD_WIDTH + 20}
                   decelerationRate="fast"
+                  initialNumToRender={10}
+                  maxToRenderPerBatch={10}
+                  windowSize={5}
                   ListEmptyComponent={
                     <Text style={{textAlign:'center', marginTop: 50, color:'#888', width: width}}>
                       No places found in database.
@@ -296,7 +299,7 @@ export default function HomeScreen() {
           shadowOpacity: 0,
           height: Platform.OS === 'ios' ? 90 : 70, 
           paddingTop: 10, 
-          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
+          paddingBottom: Platform.OS === 'ios' ? 30 : 20,
         },
         tabBarActiveTintColor: '#0c0b0bff', 
         tabBarInactiveTintColor: '#B0B0B0', 
