@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import * as Location from 'expo-location';
 import { 
   View, 
   Text, 
@@ -68,6 +69,7 @@ function HomeContent() {
   
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -76,11 +78,31 @@ function HomeContent() {
     return () => clearTimeout(handler);
   }, [searchText]);
 
+  // Fetch user's live location
+  useEffect(() => {
+    (async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission denied', 'Location permission is required to show nearby places.');
+          return;
+        }
+        let location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } catch (error) {
+        Alert.alert('Location Error', 'Could not fetch your location.');
+      }
+    })();
+  }, []);
+
   const { data: places = [], isLoading: loading, error, refetch } = useGetPlacesQuery({
     category: activeCategory,
     searchQuery: debouncedSearchText,
-    userLat: 37.7749,
-    userLng: -122.4194
+    userLat: userLocation?.latitude,
+    userLng: userLocation?.longitude
   });
 
   useEffect(() => {
