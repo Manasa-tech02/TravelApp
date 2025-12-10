@@ -18,6 +18,8 @@ export interface Place {
   longitude: number; 
   views: number;     
   createdAt: string;
+  temperature?: number;
+  duration?: string;
 }
 
 export interface ApiPlace {
@@ -32,4 +34,6 @@ export interface ApiPlace {
   longitude: string;  // API usually sends coordinates as strings
   views: number;
   createdAt: string;
+  temperature?: string;
+  duration?: string;
 }

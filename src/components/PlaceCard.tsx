@@ -39,13 +39,11 @@ const PlaceCard = React.memo(({ item, isFavorite, onPress, onToggleFavorite }: P
 
       <View style={styles.cardOverlay}>
          <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-         
          <View style={styles.cardFooterRow}>
            <View style={styles.cardLocationRow}>
              <Ionicons name="location-outline" size={14} color="#D1D1D1" />
              <Text style={styles.cardLocation} numberOfLines={1}>{item.location}</Text>
            </View>
-
            <View style={styles.ratingContainer}>
               <Ionicons name="star" size={12} color="#FFD700" />
               <Text style={styles.ratingText}>{item.rating}</Text>

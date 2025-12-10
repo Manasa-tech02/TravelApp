@@ -50,7 +50,7 @@ const CATEGORIES: { id: SortCategory; name: string }[] = [
 ];
 
 type RootStackParamList = {
-  Details: { place: Place };
+  Details: { place: Place; userLocation: { latitude: number; longitude: number } | null };
 };
 
 const { width } = Dimensions.get('window');
@@ -87,7 +87,10 @@ function HomeContent() {
           Alert.alert('Permission denied', 'Location permission is required to show nearby places.');
           return;
         }
-        let location = await Location.getCurrentPositionAsync({});
+        let location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+          //maximumAge: 10000
+        });
         setUserLocation({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
@@ -140,7 +143,7 @@ function HomeContent() {
   }, [activeCategory, handleCategoryPress]);
 
   const handlePlacePress = useCallback((item: Place) => {
-    navigation.navigate('Details', { place: item });
+    navigation.navigate('Details', { place: item, userLocation });
   }, [navigation]);
 
   const handleToggleFavorite = useCallback((item: Place) => {
@@ -168,7 +171,7 @@ function HomeContent() {
           title: item.title,
           location: item.location
         }));
-        navigation.navigate('Details', { place: item });
+        navigation.navigate('Details', { place: item, userLocation });
       }}
     >
       <View style={styles.searchResultIcon}>

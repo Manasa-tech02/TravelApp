@@ -69,6 +69,8 @@ export const placesApi = createApi({
           longitude: parseFloat(item.longitude),
           views: item.views || 0,
           createdAt: item.createdAt,
+          temperature: item.temperature ? parseFloat(item.temperature) : undefined,
+          duration: item.duration,
         }));
       },
     }),

@@ -13,6 +13,6 @@ export type TabParamList = {
 export type RootStackParamList = {
   Welcome: undefined;
   HomeScreen: NavigatorScreenParams<TabParamList>; // This holds the TabNavigator
-  Details: { place: Place };
+  Details: { place: Place; userLocation: { latitude: number; longitude: number } | null };
   SignUp: undefined;
 };

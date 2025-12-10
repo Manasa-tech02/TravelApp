@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getDistance } from 'geolib';
 import {
   View,
   Text,
@@ -22,15 +23,28 @@ const { width, height } = Dimensions.get('window');
 const OverviewScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<OverviewScreenRouteProp>();
-  const { place } = route.params;
+  const { place, userLocation } = route.params as any;
 
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
   const isFavorite = favorites.some((item) => item.id === place.id);
   
 
-  const temperature = 25;
-  const duration = '5 hours';
+  // Use temperature and duration from backend (place object)
+  const temperature = place.temperature;
+
+  // Calculate distance in km from user location to place
+  let distanceText = '';
+  if (userLocation && place.latitude && place.longitude) {
+    const distance = getDistance(
+      { latitude: userLocation.latitude, longitude: userLocation.longitude },
+      { latitude: place.latitude, longitude: place.longitude }
+    );
+    const distanceKm = (distance / 1000).toFixed(2);
+    distanceText = `${distanceKm} km`;
+  } else {
+    distanceText = 'N/A';
+  }
 
   const [activeTab, setActiveTab] = useState<'Overview' | 'Details'>('Overview');
 
@@ -100,9 +114,9 @@ const OverviewScreen = () => {
         <View style={styles.statsRow}>
           <TouchableOpacity style={styles.statItem}>
             <View style={styles.statIconContainer}>
-              <Ionicons name="time" size={20} color="#060801ff" />
+              <Ionicons name="map" size={20} color="#060801ff" />
             </View>
-            <Text style={styles.statText}>{duration}</Text>
+            <Text style={styles.statText}>{distanceText}</Text>
           </TouchableOpacity>
 
           
