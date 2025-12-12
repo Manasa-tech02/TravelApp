@@ -15,4 +15,6 @@ export type RootStackParamList = {
   HomeScreen: NavigatorScreenParams<TabParamList>; // This holds the TabNavigator
   Details: { place: Place; userLocation: { latitude: number; longitude: number } | null };
   SignUp: undefined;
+  ProfileScreen2: undefined;
+  BookNow: undefined;
 };

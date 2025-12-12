@@ -20,14 +20,17 @@ type OverviewScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
 
 const { width, height } = Dimensions.get('window');
 
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 const OverviewScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<OverviewScreenRouteProp>();
   const { place, userLocation } = route.params as any;
 
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
   const isFavorite = favorites.some((item) => item.id === place.id);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   
 
   // Use temperature and duration from backend (place object)
@@ -147,7 +150,16 @@ const OverviewScreen = () => {
 
         {/* Bottom Button */}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.bookButton}>
+          <TouchableOpacity
+            style={styles.bookButton}
+            onPress={() => {
+              if (isAuthenticated) {
+                navigation.navigate('BookNow');
+              } else {
+                navigation.navigate('SignUp');
+              }
+            }}
+          >
             <Text style={styles.bookButtonText}>Book Now</Text>
             <Ionicons name="paper-plane-outline" size={20} color="#fff" style={{ marginLeft: 8 }} />
           </TouchableOpacity>
@@ -276,7 +288,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
-    opacity:0.8,
+    opacity:0.4,
   },
   statIconContainer: {
     marginRight: 8,

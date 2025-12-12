@@ -7,10 +7,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../screens/WelcomeScreen';
 
 
+
 import { RootStackParamList } from './types';
 import OverviewScreen from '../screens/OverviewScreen';
 import HomeScreen from '../screens/HomeScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import ProfileScreen2 from '../screens/ProfileScreen2';
+import BookNowScreen from '../screens/BookNowScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -40,6 +43,8 @@ export default function AppNavigator() {
 
       
         <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="ProfileScreen2" component={ProfileScreen2} />
+        <Stack.Screen name="BookNow" component={BookNowScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

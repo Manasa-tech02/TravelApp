@@ -91,12 +91,15 @@ function HomeContent() {
           accuracy: Location.Accuracy.High,
           //maximumAge: 10000
         });
-        setUserLocation({
+        const coords = {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
-        });
+        };
+        console.log('Fetched user location:', coords);
+        setUserLocation(coords);
       } catch (error) {
         Alert.alert('Location Error', 'Could not fetch your location.');
+        console.log('Location fetch error:', error);
       }
     })();
   }, []);
@@ -143,8 +146,9 @@ function HomeContent() {
   }, [activeCategory, handleCategoryPress]);
 
   const handlePlacePress = useCallback((item: Place) => {
+    console.log('Navigating to Details with userLocation:', userLocation);
     navigation.navigate('Details', { place: item, userLocation });
-  }, [navigation]);
+  }, [navigation, userLocation]);
 
   const handleToggleFavorite = useCallback((item: Place) => {
     dispatch(toggleFavorite(item));
@@ -171,6 +175,7 @@ function HomeContent() {
           title: item.title,
           location: item.location
         }));
+        console.log('Navigating to Details (search) with userLocation:', userLocation);
         navigation.navigate('Details', { place: item, userLocation });
       }}
     >

@@ -1,11 +1,37 @@
+
 # TravelApp
 
-A React Native (Expo) application for discovering and saving travel places, with live location support and backend API integration.
+A React Native (Expo) application for discovering and saving travel places, with live location support, distance calculation, and backend API integration.
+
+## Developer Role
+This project demonstrates skills for a Junior React Native Developer / Mobile App Developer (Fresher/Entry Level).
+
+## Tools & Libraries Used
+- Expo (development, build, device preview)
+- React Native (core framework)
+- TypeScript (type safety)
+- Redux Toolkit & Redux Toolkit Query (state management, API fetching)
+- Axios (HTTP requests)
+- Expo Location (user location)
+- React Navigation (screen navigation)
+- @expo/vector-icons (Ionicons for UI icons)
+- geolib (distance calculation)
+- React Native core components (View, Text, FlatList, etc.)
+- Alert (error and permission dialogs)
+- SafeAreaView (device safe area handling)
+- ActivityIndicator (loading spinners)
+
+Planned/Optional:
+- Firebase (backend/auth/data)
+- expo-notifications (push notifications)
+- Animated (UI animations)
+
 
 ## Features
 - User registration and login
 - Fetch and display places from backend API
 - Live user location (with permission)
+- Calculate and display distance from user to place
 - Sort places by most viewed, latest, or nearby
 - Save favorites and view history
 - Profile management
@@ -38,12 +64,14 @@ Base URL: `https://692d4343e5f67cd80a4ac166.mockapi.io/api/v1`
 - `GET /users?email=...` — Find user by email
 - `POST /users` — Register new user
 
+
 ## Usage
 - Open the app in Expo Go or build an APK for Android.
 - Register or log in to access features.
-- Allow location permission for nearby places.
+- Allow location permission for nearby places and distance calculation.
 - Use the Home screen to browse, search, and sort places.
 - Save favorites and view your history.
+
 
 ## Testing
 - Manual: Use Expo Go to test UI and features.
@@ -71,9 +99,11 @@ TravelApp/
 │   └── types/
 ```
 
+
 ## Documentation
 - Written in Markdown (`README.md`)
 - For UI component documentation, consider using Storybook
+
 
 ## License
 MIT
