@@ -215,27 +215,40 @@
 
 
 
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import auth from '@react-native-firebase/auth';
-
 import { RootStackParamList } from '../navigation/types';
 
 const ProfileScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [user, setUser] = useState(auth().currentUser);
 
-  const user = auth().currentUser;
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged(setUser);
+    return unsubscribe;
+  }, []);
+
   const isAuthenticated = !!user;
 
-  const handleFooterPress = async () => {
-    if (isAuthenticated) {
-      await auth().signOut();
-    } else {
+  const handleFooterPress = () => {
+    if (!isAuthenticated) {
       navigation.navigate('SignUp');
+      return;
     }
+
+    Alert.alert(
+      'Log out',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Log out', style: 'destructive', onPress: () => auth().signOut() },
+      ]
+    );
   };
 
   return (
@@ -249,12 +262,18 @@ const ProfileScreen = () => {
       </View>
 
       <ScrollView style={styles.container}>
-        {/* ACCOUNT */}
         <Text style={styles.sectionLabel}>ACCOUNT</Text>
+
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.cardItem}
-            onPress={() => navigation.navigate('ProfileSettingsScreen')}
+            onPress={() => {
+              if (!isAuthenticated) {
+                navigation.navigate('SignUp');
+                return;
+              }
+              navigation.navigate('ProfileSettings');
+            }}
           >
             <View style={styles.cardIconCircle}>
               <Ionicons name="person-circle-outline" size={28} color="#222" />
@@ -266,7 +285,6 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* FOOTER */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleFooterPress}>
           <Text style={styles.logoutText}>
             {isAuthenticated ? 'Log Out' : 'Sign In'}
@@ -276,6 +294,9 @@ const ProfileScreen = () => {
     </SafeAreaView>
   );
 };
+
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

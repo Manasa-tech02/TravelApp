@@ -12,31 +12,30 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-// 1. Define the Navigation Types locally
-// This tells TypeScript that "HomeScreen" is a valid destination
+
 type RootStackParamList = {
   Welcome: undefined;
   HomeScreen: undefined; 
 };
 
-// Define the specific navigation prop for this screen
+
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Welcome'>;
 
 export default function WelcomeScreen() {
-  // 2. Initialize the navigation hook
+  
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
 
     // Auto-navigate to HomeScreen after 2 seconds
     useEffect(() => {
       const timer = setTimeout(() => {
-        //navigation.replace('HomeScreen');
+        navigation.replace('Home');
       }, 2000); // 2000ms = 2 seconds
       return () => clearTimeout(timer);
     }, [navigation]);
 
   return (
     <View style={styles.container}>
-      {/* Set Status Bar to Light (White text) to contrast with dark background */}
+      
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       {/* 3. Gradient Background */}
@@ -97,9 +96,9 @@ const styles = StyleSheet.create({
     fontSize: 48,
     color: '#FFFFFF',
     fontWeight: 'bold',
-    // Italic style mimics the design in your image
+   
     fontStyle: 'italic', 
-    // Uses serif font to look elegant
+    
     fontFamily: Platform.OS === 'ios' ? 'Georgia-BoldItalic' : 'serif',
   },
   logoIcon: {

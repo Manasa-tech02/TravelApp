@@ -3,7 +3,7 @@ import { Place } from '../services/types';
 
 // 1. The Bottom Tabs (Home, History, Favorites, Profile)
 export type TabParamList = {
-  HomeScreen: undefined;
+  Home: undefined;
   History: undefined; 
   Favorites: undefined; 
   Profile: undefined;
@@ -12,10 +12,10 @@ export type TabParamList = {
 // 2. The Main Stack (Welcome -> Tabs -> Details)
 export type RootStackParamList = {
   Welcome: undefined;
-  HomeScreen: NavigatorScreenParams<TabParamList>; // This holds the TabNavigator
+  Home: NavigatorScreenParams<TabParamList>; // This holds the TabNavigator
   Details: { place: Place; userLocation: { latitude: number; longitude: number } | null };
   SignUp: undefined;
   ProfileScreen2: undefined;
   BookNow: undefined;
-  ProfileSettingsScreen: undefined;
+  ProfileSettings: undefined;
 };

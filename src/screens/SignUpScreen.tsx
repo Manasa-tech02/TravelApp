@@ -581,9 +581,9 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#326ca5' },
+  container: { flex: 1, backgroundColor: '#eff4f8ff' },
   header: { padding: 30 },
-  headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#fff' },
+  headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#060606ff' },
   content: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 30,
