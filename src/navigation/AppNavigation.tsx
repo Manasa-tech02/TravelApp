@@ -1,50 +1,45 @@
+// src/navigation/AppNavigation.tsx
 import React from 'react';
-import { View, Text } from 'react-native';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-
 import WelcomeScreen from '../screens/WelcomeScreen';
-
-
-
-import { RootStackParamList } from './types';
-import OverviewScreen from '../screens/OverviewScreen';
-import HomeScreen from '../screens/HomeScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import ProfileScreen2 from '../screens/ProfileScreen2';
+import HomeScreen from '../screens/HomeScreen';
+import OverviewScreen from '../screens/OverviewScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import BookNowScreen from '../screens/BookNowScreen';
+import ProfileSettingsScreen from '../screens/ProfileSettingsScreen';
+
+
+
+export type RootStackParamList = {
+  Welcome: undefined;
+  SignUp: undefined;
+  Home: undefined;
+  Details: undefined;
+  Profile: undefined;
+  BookNow: undefined;
+  ProfileSettings: undefined;
+ 
+  
+};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export default function AppNavigator() {
+export default function AppNavigation() {
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-       
-        initialRouteName="Welcome"
-        screenOptions={{ 
-          headerShown: false,
-          animation: 'slide_from_right' 
-        }}
-      >
-       
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
-
-       
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
-
-       
-        <Stack.Screen 
-          name="Details" 
-          component={OverviewScreen} 
-          options={{ presentation: 'card' }}
-        />
-
-      
+        
+        <Stack.Screen name="Home" component={HomeScreen} />
+        
         <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="ProfileScreen2" component={ProfileScreen2} />
+        <Stack.Screen name="Details" component={OverviewScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="BookNow" component={BookNowScreen} />
+        <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

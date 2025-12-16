@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -26,6 +26,14 @@ export default function WelcomeScreen() {
   // 2. Initialize the navigation hook
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
 
+    // Auto-navigate to HomeScreen after 2 seconds
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        //navigation.replace('HomeScreen');
+      }, 2000); // 2000ms = 2 seconds
+      return () => clearTimeout(timer);
+    }, [navigation]);
+
   return (
     <View style={styles.container}>
       {/* Set Status Bar to Light (White text) to contrast with dark background */}
@@ -50,7 +58,7 @@ export default function WelcomeScreen() {
           {/* This Text acts as the button to go to HomeScreen */}
           <TouchableOpacity 
             activeOpacity={0.7} 
-            onPress={() => navigation.navigate('HomeScreen')}
+              // onPress removed for auto navigation
             style={styles.touchableArea}
           >
             <Text style={styles.mainText}>

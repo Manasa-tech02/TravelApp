@@ -1,171 +1,384 @@
+// import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+// import { SafeAreaView } from 'react-native-safe-area-context';
+// import { Ionicons } from '@expo/vector-icons';
+// import { useNavigation } from '@react-navigation/native';
+// import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// import { useAppSelector, useAppDispatch } from '../redux/hooks';
+// import { logoutUser } from '../services/firebaseAuthServices';
+// import { RootStackParamList } from '../navigation/types';
+
+
+// const ProfileScreen = () => {
+//   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+//   const dispatch = useAppDispatch();
+//   const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+  
+//   const handleFooterPress = () => {
+//     if (isAuthenticated) {
+//       dispatch(logoutUser());
+//     } else {
+//       navigation.navigate('ProfileScreen2');
+//     }
+//   };
+//   return (
+//     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+//       {/* Header with Back Arrow and Title */}
+//       <View style={styles.header}>
+//         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+//           <Ionicons name="arrow-back" size={28} color="#222" />
+//         </TouchableOpacity>
+//         <Text style={styles.headerTitle}>Settings & Activity</Text>
+//       </View>
+//       <ScrollView style={styles.container}>
+//         {/* Account Section */}
+//         <Text style={styles.sectionLabel}>ACCOUNT</Text>
+//         <View style={styles.card}>
+//           <TouchableOpacity style={styles.cardItem} onPress={() => navigation.navigate('ProfileSettingsScreen')}>
+//             <View style={styles.cardIconCircle}>
+//               <Ionicons name="person-circle-outline" size={28} color="#222" />
+//             </View>
+//             <View>
+//               <Text style={styles.cardTitle}>Profile Settings</Text>
+//               <Text style={styles.cardSubtitle}>Edit your personal information</Text>
+//             </View>
+//           </TouchableOpacity>
+//         </View>
+
+//         {/* Preferences Section */}
+//         <Text style={styles.sectionLabel}>PREFERENCES</Text>
+//         <View style={styles.card}>
+//           <TouchableOpacity style={styles.cardItem}>
+//             <View style={styles.cardIconCircle}>
+//               <Ionicons name="moon-outline" size={24} color="#222" />
+//             </View>
+//             <View>
+//               <Text style={styles.cardTitle}>Themes</Text>
+//               <Text style={styles.cardSubtitle}>Light, dark, or system</Text>
+//             </View>
+//           </TouchableOpacity>
+//           <TouchableOpacity style={styles.cardItem}>
+//             <View style={styles.cardIconCircle}>
+//               <Ionicons name="notifications-outline" size={24} color="#222" />
+//             </View>
+//             <View>
+//               <Text style={styles.cardTitle}>Notifications</Text>
+//               <Text style={styles.cardSubtitle}>Push, email, and in-app alerts</Text>
+//             </View>
+//           </TouchableOpacity>
+//           <TouchableOpacity style={styles.cardItem}>
+//             <View style={styles.cardIconCircle}>
+//               <Ionicons name="language-outline" size={24} color="#222" />
+//             </View>
+//             <View>
+//               <Text style={styles.cardTitle}>Languages & Translations</Text>
+//               <Text style={styles.cardSubtitle}>English (US)</Text>
+//             </View>
+//           </TouchableOpacity>
+//         </View>
+
+//         {/* Support & Legal Section */}
+//         <Text style={styles.sectionLabel}>SUPPORT & LEGAL</Text>
+//         <View style={styles.card}>
+//           <TouchableOpacity style={styles.cardItem}>
+//             <View style={styles.cardIconCircle}>
+//               <Ionicons name="help-circle-outline" size={24} color="#222" />
+//             </View>
+//             <View>
+//               <Text style={styles.cardTitle}>Help & Support</Text>
+//               <Text style={styles.cardSubtitle}>FAQs and contact us</Text>
+//             </View>
+//           </TouchableOpacity>
+//           <TouchableOpacity style={styles.cardItem}>
+//             <View style={styles.cardIconCircle}>
+//               <Ionicons name="document-text-outline" size={24} color="#222" />
+//             </View>
+//             <View>
+//               <Text style={styles.cardTitle}>Terms & Conditions</Text>
+//               <Text style={styles.cardSubtitle}>Privacy policy and terms</Text>
+//             </View>
+//           </TouchableOpacity>
+//         </View>
+
+//         {/* Footer Button: Sign In or Log Out */}
+//         <TouchableOpacity style={styles.logoutButton} onPress={handleFooterPress}>
+//           <Text style={styles.logoutText}>{isAuthenticated ? 'Log Out' : 'Sign In'}</Text>
+//         </TouchableOpacity>
+//       </ScrollView>
+//     </SafeAreaView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//     paddingHorizontal: 0,
+//     paddingTop: 0,
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     paddingHorizontal: 16,
+//     paddingTop: Platform.OS === 'ios' ? 50 : 24,
+//     paddingBottom: 16,
+//     backgroundColor: '#fff',
+//     borderBottomWidth: 0.5,
+//     borderBottomColor: '#f0f0f0',
+//     elevation: 2,
+//   },
+//   backButton: {
+//     marginRight: 12,
+//     padding: 4,
+//     borderRadius: 20,
+//   },
+//   headerTitle: {
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     color: '#222',
+//     letterSpacing: 0.5,
+//   },
+//   sectionLabel: {
+//     fontSize: 13,
+//     fontWeight: 'bold',
+//     color: '#535151ff',
+//     marginTop: 24,
+//     marginBottom: 8,
+//     marginLeft: 18,
+//     letterSpacing: 1,
+//   },
+//   card: {
+//     backgroundColor: '#fff',
+//     borderRadius: 16,
+//     marginHorizontal: 12,
+//     marginBottom: 16,
+//     paddingVertical: 0,
+//     // iOS shadow
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.04,
+//     shadowRadius: 8,
+//     // Android shadow
+//     elevation: 2,
+//   },
+//   cardItem: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     paddingVertical: 18,
+//     paddingHorizontal: 16,
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#f3f3f3',
+//   },
+//   cardItemLast: {
+//     borderBottomWidth: 0,
+//   },
+//   cardIconCircle: {
+//     width: 40,
+//     height: 40,
+//     borderRadius: 20,
+//     backgroundColor: '#f5f5f5',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     marginRight: 16,
+//   },
+//   cardTitle: {
+//     fontSize: 16,
+//     fontWeight: 'bold',
+//     color: '#222',
+//   },
+//   cardSubtitle: {
+//     fontSize: 13,
+//     color: '#888',
+//     marginTop: 2,
+//   },
+//   logoutButton: {
+//     marginTop: 16,
+//     marginBottom: 32,
+//     backgroundColor: '#fff',
+//     borderWidth: 1,
+//     borderColor: '#ff3d3d',
+//     borderRadius: 12,
+//     paddingVertical: 18,
+//     alignItems: 'center',
+//     marginHorizontal: 16,
+//   },
+//   logoutText: {
+//     color: '#ff3d3d',
+//     fontWeight: 'bold',
+//     fontSize: 16,
+//   },
+
+// });
+
+// export default ProfileScreen;
+
+
+
+
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import auth from '@react-native-firebase/auth';
 
-import { useAppSelector, useAppDispatch } from '../redux/hooks';
-import { logout } from '../redux/slices/authSlice';
 import { RootStackParamList } from '../navigation/types';
-
 
 const ProfileScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
-  
-  const handleFooterPress = () => {
+
+  const user = auth().currentUser;
+  const isAuthenticated = !!user;
+
+  const handleFooterPress = async () => {
     if (isAuthenticated) {
-      dispatch(logout());
+      await auth().signOut();
     } else {
-      navigation.navigate('ProfileScreen2');
+      navigation.navigate('SignUp');
     }
   };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      {/* Header with Back Arrow */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#222" />
+          <Ionicons name="arrow-back" size={28} color="#222" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>Settings & Activity</Text>
       </View>
+
       <ScrollView style={styles.container}>
-        {/* Account Section */}
-        <Text style={styles.sectionTitle}>ACCOUNT</Text>
-        <TouchableOpacity style={styles.item}>
-          <Ionicons name="person-circle-outline" size={32} color="#222" style={styles.icon} />
-          <View>
-            <Text style={styles.itemTitle}>Profile Settings</Text>
-            <Text style={styles.itemSubtitle}>Edit your personal information</Text>
-          </View>
-        </TouchableOpacity>
+        {/* ACCOUNT */}
+        <Text style={styles.sectionLabel}>ACCOUNT</Text>
+        <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.cardItem}
+            onPress={() => navigation.navigate('ProfileSettingsScreen')}
+          >
+            <View style={styles.cardIconCircle}>
+              <Ionicons name="person-circle-outline" size={28} color="#222" />
+            </View>
+            <View>
+              <Text style={styles.cardTitle}>Profile Settings</Text>
+              <Text style={styles.cardSubtitle}>Edit your personal information</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
 
-        {/* Preferences Section */}
-        <Text style={styles.sectionTitle}>PREFERENCES</Text>
-        <TouchableOpacity style={styles.item}>
-          <Ionicons name="moon-outline" size={28} color="#222" style={styles.icon} />
-          <View>
-            <Text style={styles.itemTitle}>Themes</Text>
-            <Text style={styles.itemSubtitle}>Light, dark, or system</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.item}>
-          <Ionicons name="notifications-outline" size={28} color="#222" style={styles.icon} />
-          <View>
-            <Text style={styles.itemTitle}>Notifications</Text>
-            <Text style={styles.itemSubtitle}>Push, email, and in-app alerts</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.item}>
-          <Ionicons name="language-outline" size={28} color="#222" style={styles.icon} />
-          <View>
-            <Text style={styles.itemTitle}>Languages & Translations</Text>
-            <Text style={styles.itemSubtitle}>English (US)</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Support & Legal Section */}
-        <Text style={styles.sectionTitle}>SUPPORT & LEGAL</Text>
-        <TouchableOpacity style={styles.item}>
-          <Ionicons name="help-circle-outline" size={28} color="#222" style={styles.icon} />
-          <View>
-            <Text style={styles.itemTitle}>Help & Support</Text>
-            <Text style={styles.itemSubtitle}>FAQs and contact us</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.item}>
-          <Ionicons name="document-text-outline" size={28} color="#222" style={styles.icon} />
-          <View>
-            <Text style={styles.itemTitle}>Terms & Conditions</Text>
-            <Text style={styles.itemSubtitle}>Privacy policy and terms</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Footer Button: Sign In or Log Out */}
+        {/* FOOTER */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleFooterPress}>
-          <Text style={styles.logoutText}>{isAuthenticated ? 'Log Out' : 'Sign In'}</Text>
+          <Text style={styles.logoutText}>
+            {isAuthenticated ? 'Log Out' : 'Sign In'}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-     backgroundColor: '#326ca5ff',
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    backgroundColor: '#fff',
+    paddingHorizontal: 0,
+    paddingTop: 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
-    paddingBottom: 20,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 50 : 24,
+    paddingBottom: 16,
     backgroundColor: '#fff',
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#f0f0f0',
+    elevation: 2,
   },
   backButton: {
-    marginRight: 15,
+    marginRight: 12,
+    padding: 4,
+    borderRadius: 20,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#222',
+    letterSpacing: 0.5,
   },
-  sectionTitle: {
-    fontSize: 16,
+  sectionLabel: {
+    fontSize: 13,
     fontWeight: 'bold',
-    color: '#f9f5f5ff',
-    marginTop: 20,
+    color: '#535151ff',
+    marginTop: 24,
     marginBottom: 8,
-    marginLeft: 8,
+    marginLeft: 18,
     letterSpacing: 1,
   },
-  item: {
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginHorizontal: 12,
+    marginBottom: 16,
+    paddingVertical: 0,
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    // Android shadow
+    elevation: 2,
+  },
+  cardItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fafafa',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    marginHorizontal: 2,
-    elevation: 1,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f3f3',
   },
-  icon: {
-    marginRight: 18,
+  cardItemLast: {
+    borderBottomWidth: 0,
   },
-  itemTitle: {
-    fontSize: 14,
+  cardIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  cardTitle: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#222',
   },
-  itemSubtitle: {
-    fontSize: 12,
+  cardSubtitle: {
+    fontSize: 13,
     color: '#888',
     marginTop: 2,
   },
   logoutButton: {
-    marginTop: 5,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 32,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ff3d3d',
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 18,
     alignItems: 'center',
-    marginHorizontal:2,
-    
-    
+    marginHorizontal: 16,
   },
   logoutText: {
     color: '#ff3d3d',
     fontWeight: 'bold',
     fontSize: 16,
-    paddingBottom: -5,
   },
 
 });
 
+
 export default ProfileScreen;
+
+
+

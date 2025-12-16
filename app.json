@@ -7,29 +7,31 @@
     "icon": "./assets/icon_image.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    // "splash": {
-    //   "image": "./assets/splash-icon.png",
-    //   "resizeMode": "contain",
-    //   "backgroundColor": "#ffffff"
-    // },
+
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.travelapp.app"
     },
+
     "android": {
       "package": "com.travelapp.app",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        // "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
+
     "web": {
       "favicon": "./assets/favicon.png"
     },
+
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-firebase/app"
     ],
+
     "extra": {
       "eas": {
         "projectId": "c0d5a244-2b29-4cfe-a474-51c29e648418"

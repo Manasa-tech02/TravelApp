@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getDistance } from 'geolib';
+import { Share } from 'react-native';
 import {
   View,
   Text,
@@ -14,7 +15,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/types';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { toggleFavorite } from '../redux/slices/favoritesSlice';
+
 
 type OverviewScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
 
@@ -51,8 +52,16 @@ const OverviewScreen = () => {
 
   const [activeTab, setActiveTab] = useState<'Overview' | 'Details'>('Overview');
 
-  const handleToggleFavorite = () => {
-    dispatch(toggleFavorite(place));
+
+
+  const handleSharePlace = async () => {
+    // You can customize what details to share
+    const placeDetails = `Place: ${place.name}\nDescription: ${place.description}\nLocation: (${place.latitude}, ${place.longitude})`;
+    try {
+      await Share.share({ message: placeDetails });
+    } catch (error) {
+      // Optionally handle error
+    }
   };
 
   return (
@@ -74,10 +83,10 @@ const OverviewScreen = () => {
           
           <TouchableOpacity 
             style={styles.iconButton} 
-            onPress={handleToggleFavorite}
+            onPress={handleSharePlace}
           >
             <Ionicons 
-              name={isFavorite ? "bookmark" : "bookmark-outline"} 
+              name="share-social-outline" 
               size={24} 
               color="#fff" 
             />
@@ -227,12 +236,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  placeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
-  },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -247,16 +250,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'right',
     paddingRight:5,
-  },
-  priceValue: {
-    color: '#d4a373', // Gold/Orange color
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -296,6 +289,22 @@ const styles = StyleSheet.create({
   statText: {
     color: '#0c0c0cff',
     fontWeight: '500',
+  },
+  placeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  priceValue: {
+    color: '#d4a373', // Gold/Orange color
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   descriptionContainer: {
     flex: 1,

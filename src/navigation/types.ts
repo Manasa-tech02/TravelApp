@@ -17,4 +17,5 @@ export type RootStackParamList = {
   SignUp: undefined;
   ProfileScreen2: undefined;
   BookNow: undefined;
+  ProfileSettingsScreen: undefined;
 };
