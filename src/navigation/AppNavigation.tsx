@@ -10,6 +10,7 @@ import OverviewScreen from '../screens/OverviewScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import BookNowScreen from '../screens/BookNowScreen';
 import ProfileSettingsScreen from '../screens/ProfileSettingsScreen';
+import LoginScreen from '../screens/LoginScreen'
 
 
 
@@ -21,6 +22,7 @@ export type RootStackParamList = {
   Profile: undefined;
   BookNow: undefined;
   ProfileSettings: undefined;
+  Login:undefined;
  
   
 };
@@ -40,6 +42,7 @@ export default function AppNavigation() {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="BookNow" component={BookNowScreen} />
         <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
+        <Stack.Screen name="Login" component={LoginScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

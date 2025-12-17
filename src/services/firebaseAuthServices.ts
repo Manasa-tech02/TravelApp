@@ -7,6 +7,13 @@ export const signupUser = async (
   return auth().createUserWithEmailAndPassword(email, password);
 };
 
+export const loginUser = async (
+  email: string,
+  password: string
+) => {
+  return auth().signInWithEmailAndPassword(email, password);
+};
+
 export const logoutUser = async () => {
   return auth().signOut();
 };

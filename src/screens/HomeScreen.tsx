@@ -42,6 +42,7 @@ import { TabParamList } from '../navigation/types';
 
 import CategoryItem from '../components/CategoryItem';
 import PlaceCard from '../components/PlaceCard';
+import { useAuth } from '../auth/useAuth';
 
 
 const CATEGORIES: { id: SortCategory; name: string }[] = [
@@ -64,15 +65,10 @@ function HomeContent() {
   const listRef = useRef<FlatList<Place>>(null);
   
 //   // --- 1. Use Redux State instead of Local State ---
-const [user, setUser] = useState(auth().currentUser);
-
-  useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged(setUser);
-    return unsubscribe;
-  }, []);
+  const { user, isAuthenticated } = useAuth();
   const { activeCategory } = useAppSelector((state) => state.places);
   const favorites = useAppSelector((state) => state.favorites.items);
-  
+  const displayName = isAuthenticated ? user?.displayName : 'Guest';
   
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
@@ -658,35 +654,32 @@ const styles = StyleSheet.create({
 });
 
 
-// import React, {
-//   useState,
-//   useEffect,
-//   useCallback,
-//   useRef,
-// } from 'react';
+// import React, { useState, useEffect, useCallback, useRef } from 'react';
 // import * as Location from 'expo-location';
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   TextInput,
-//   FlatList,
-//   TouchableOpacity,
+// import { 
+//   View, 
+//   Text, 
+//   StyleSheet, 
+//   TextInput, 
+//   FlatList, 
+//   TouchableOpacity, 
 //   StatusBar,
 //   ScrollView,
 //   Platform,
 //   Dimensions,
-//   ActivityIndicator,
-//   Alert,
+//   ActivityIndicator, 
+//   Alert
 // } from 'react-native';
-
 // import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-// import { SafeAreaView } from 'react-native-safe-area-context';
+
 // import { useNavigation } from '@react-navigation/native';
 // import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+// import { SafeAreaView } from 'react-native-safe-area-context';
 // import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-// import auth from '@react-native-firebase/auth';
+// // 🔑 AUTH + FIRESTORE
+// import { useAuth } from '../auth/useAuth';
+// import { listenToUserProfile } from '../services/firebaseUserServices';
 
 // // Redux
 // import { useAppDispatch, useAppSelector } from '../redux/hooks';
@@ -695,23 +688,15 @@ const styles = StyleSheet.create({
 // import { setActiveCategory } from '../redux/slices/placesSlice';
 // import { useGetPlacesQuery } from '../services/placesApi';
 
-// // Types
-// import { Place } from '../services/types';
+// // Types & Components
+// import { Place } from '../services/types'; 
 // import { SortCategory } from '../services/placesApi';
-// import { RootStackParamList, TabParamList } from '../navigation/types';
-
-// // Screens
 // import FavoritesScreen from './FavoritesScreen';
 // import HistoryScreen from './HistoryScreen';
 // import ProfileScreen from './ProfileScreen';
-
-// // Components
+// import { TabParamList } from '../navigation/types';
 // import CategoryItem from '../components/CategoryItem';
 // import PlaceCard from '../components/PlaceCard';
-
-// const { width } = Dimensions.get('window');
-// const CARD_WIDTH = width * 0.7;
-// const CARD_HEIGHT = CARD_WIDTH * 1.5;
 
 // const CATEGORIES: { id: SortCategory; name: string }[] = [
 //   { id: 'most_viewed', name: 'Most Viewed' },
@@ -719,76 +704,67 @@ const styles = StyleSheet.create({
 //   { id: 'latest', name: 'Latest' },
 // ];
 
-// /* -------------------------------------------------------------------------- */
-// /*                                HOME CONTENT                                */
-// /* -------------------------------------------------------------------------- */
+// type RootStackParamList = {
+//   Details: { place: Place; userLocation: { latitude: number; longitude: number } | null };
+// };
+
+// const { width } = Dimensions.get('window');
+// const CARD_WIDTH = width * 0.7;
+// const CARD_HEIGHT = CARD_WIDTH * 1.5;
 
 // function HomeContent() {
-//   const navigation =
-//     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+//   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 //   const dispatch = useAppDispatch();
 //   const listRef = useRef<FlatList<Place>>(null);
 
-//   /* ----------------------------- AUTH STATE ----------------------------- */
-//   const [user, setUser] = useState(auth().currentUser);
+//   // 🔑 Auth user (from App root)
+//   const { user } = useAuth();
+
+//   // 🔥 Firestore profile name
+//   const [fullName, setFullName] = useState('');
 
 //   useEffect(() => {
-//     const unsubscribe = auth().onAuthStateChanged(setUser);
+//     if (!user?.uid) return;
+
+//     const unsubscribe = listenToUserProfile(user.uid, profile => {
+//       setFullName(profile.fullName);
+//     });
+
 //     return unsubscribe;
-//   }, []);
+//   }, [user?.uid]);
 
-//   /* ---------------------------- REDUX STATE ----------------------------- */
-//   const { activeCategory } = useAppSelector((state) => state.places);
-//   const favorites = useAppSelector((state) => state.favorites.items);
+//   const { activeCategory } = useAppSelector(state => state.places);
+//   const favorites = useAppSelector(state => state.favorites.items);
 
-//   /* ----------------------------- LOCAL STATE ---------------------------- */
 //   const [searchText, setSearchText] = useState('');
 //   const [debouncedSearchText, setDebouncedSearchText] = useState('');
-//   const [userLocation, setUserLocation] = useState<{
-//     latitude: number;
-//     longitude: number;
-//   } | null>(null);
+//   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
-//   /* ----------------------------- SEARCH DEBOUNCE ----------------------------- */
 //   useEffect(() => {
-//     const timer = setTimeout(() => {
-//       setDebouncedSearchText(searchText);
-//     }, 500);
-
-//     return () => clearTimeout(timer);
+//     const handler = setTimeout(() => setDebouncedSearchText(searchText), 500);
+//     return () => clearTimeout(handler);
 //   }, [searchText]);
 
-//   /* ----------------------------- LOCATION ----------------------------- */
 //   useEffect(() => {
 //     (async () => {
 //       try {
-//         const { status } =
-//           await Location.requestForegroundPermissionsAsync();
+//         const { status } = await Location.requestForegroundPermissionsAsync();
 //         if (status !== 'granted') {
 //           Alert.alert('Permission denied');
 //           return;
 //         }
-
-//         const location = await Location.getCurrentPositionAsync({
-//           accuracy: Location.Accuracy.High,
-//         });
-
+//         const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
 //         setUserLocation({
 //           latitude: location.coords.latitude,
 //           longitude: location.coords.longitude,
 //         });
-//       } catch (error) {
-//         Alert.alert('Location error');
+//       } catch {
+//         Alert.alert('Location Error');
 //       }
 //     })();
 //   }, []);
 
-//   /* ----------------------------- API ----------------------------- */
-//   const {
-//     data: places = [],
-//     isLoading,
-//     refetch,
-//   } = useGetPlacesQuery({
+//   const { data: places = [], isLoading: loading, refetch } = useGetPlacesQuery({
 //     category: activeCategory,
 //     searchQuery: debouncedSearchText,
 //     userLat: userLocation?.latitude,
@@ -799,236 +775,97 @@ const styles = StyleSheet.create({
 //     dispatch(setActiveCategory('most_viewed'));
 //   }, [dispatch]);
 
-//   /* ----------------------------- HANDLERS ----------------------------- */
-//   const handleCategoryPress = useCallback(
-//     (id: SortCategory) => {
-//       listRef.current?.scrollToOffset({ offset: 0, animated: true });
-//       dispatch(setActiveCategory(id));
-//     },
-//     [dispatch]
-//   );
-//   const handleSearchSubmit = () => {
-//     const trimmedText = searchText.trim();
-//     if (trimmedText) {
-//       setDebouncedSearchText(trimmedText);
-//       // dispatch(addToHistory(trimmedText)); // Only adding clicked items to history now
-//     }
+//   // ✅ YOUR INITIALS LOGIC (UNCHANGED)
+//   const getInitials = (name: string) => {
+//     if (!name) return 'U';
+//     const parts = name.trim().split(' ');
+//     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+//     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 //   };
 
-//     const handlePlacePress = useCallback((item: Place) => {
-//     console.log('Navigating to Details with userLocation:', userLocation);
-//     navigation.navigate('Details', { place: item, userLocation });
-//   }, [navigation, userLocation]);
-
-//   const handleToggleFavorite = useCallback(
-//     (item: Place) => dispatch(toggleFavorite(item)),
-//     [dispatch]
-//   );
-
-//   /* ----------------------------- RENDERS ----------------------------- */
-//  const renderCategory = useCallback(({ item }: { item: { id: SortCategory; name: string } }) => {
-//     return (
-//       <CategoryItem 
-//         item={item} 
-//         isActive={activeCategory === item.id}
-//         onPress={handleCategoryPress}
-//       />
-//     );
-//   }, [activeCategory, handleCategoryPress]);
-
-//    const renderPlaceCard = useCallback(({ item }: { item: Place }) => {
-//     const isFavorite = favorites.some((fav) => fav.id === item.id);
-//     return (
-//       <PlaceCard
-//         item={item}
-//         isFavorite={isFavorite}
-//         onPress={handlePlacePress}
-//         onToggleFavorite={handleToggleFavorite}
-//       />
-//     );
-//   }, [favorites, handlePlacePress, handleToggleFavorite]);
-
-//   const renderSearchResultItem = ({ item }: { item: Place }) => (
-//     <TouchableOpacity
-//       style={styles.searchResultItem}
-//       onPress={() => {
-//         dispatch(
-//           addToHistory({
-//             id: item.id,
-//             title: item.title,
-//             location: item.location,
-//           })
-//         );
-//         navigation.navigate('Details', { place: item, userLocation });
-//       }}
-//     >
-//       <View style={styles.searchResultIcon}>
-//         <Ionicons name="location-sharp" size={20} color="#666" />
-//       </View>
-//       <View>
-//         <Text style={styles.searchResultTitle}>{item.title}</Text>
-//         <Text style={styles.searchResultLocation}>{item.location}</Text>
-//       </View>
-//     </TouchableOpacity>
-//   );
-
-//   /* ----------------------------- UI ----------------------------- */
 //   return (
-//     <SafeAreaView style={styles.container}  edges={['top', 'left', 'right']}>
-//       <StatusBar barStyle="dark-content" />
+//     <SafeAreaView style={styles.container}>
+//       <StatusBar barStyle="dark-content" backgroundColor="#F9F9F9" />
 
-//       <ScrollView showsVerticalScrollIndicator={false}>
-//         {/* Header */}
+//       <ScrollView contentContainerStyle={styles.scrollContent}>
+
+//         {/* 🔥 HEADER */}
 //         <View style={styles.header}>
 //           <View>
-//             <Text style={styles.headerTitle}>
-//               Hi, {user?.displayName || 'Guest'} 👋
-//             </Text>
+//             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+//               <Text style={styles.headerTitle}>Hi, {fullName || 'User'}</Text>
+//               <Text style={{ fontSize: 28 }}>👋</Text>
+//             </View>
 //             <Text style={styles.headerSubtitle}>Explore the world</Text>
 //           </View>
 
 //           <View style={styles.avatarContainer}>
-//             <Text style={styles.avatarText}>
-//               {user?.displayName?.charAt(0).toUpperCase() || 'G'}
-//             </Text>
+//             <Text style={styles.avatarText}>{getInitials(fullName)}</Text>
 //           </View>
 //         </View>
 
-//         {/* Search */}
+//         {/* SEARCH BAR */}
 //         <View style={styles.searchContainer}>
-//           <Ionicons name="search-outline" size={20} />
+//           <Ionicons name="search-outline" size={20} color="#A0A0A0" />
 //           <TextInput
 //             placeholder="Search places"
+//             style={styles.searchInput}
 //             value={searchText}
 //             onChangeText={setSearchText}
-//             style={styles.searchInput}
 //           />
 //         </View>
 
-//         {/* Categories */}
-//         <FlatList
-//           horizontal
-//           data={CATEGORIES}
-//           renderItem={renderCategory}
-//           keyExtractor={(item) => item.id}
-//           showsHorizontalScrollIndicator={false}
-//           contentContainerStyle={{ paddingHorizontal: 20 }}
-//         />
+//         {/* PLACES */}
+//         <View style={styles.placesContainer}>
+//           {loading ? (
+//             <ActivityIndicator size="large" />
+//           ) : (
+//             <FlatList
+//               ref={listRef}
+//               horizontal
+//               data={places}
+//               renderItem={({ item }) => (
+//                 <PlaceCard
+//                   item={item}
+//                   isFavorite={favorites.some(f => f.id === item.id)}
+//                   onPress={() => navigation.navigate('Details', { place: item, userLocation })}
+//                   onToggleFavorite={() => dispatch(toggleFavorite(item))}
+//                 />
+//               )}
+//               keyExtractor={item => item.id}
+//               showsHorizontalScrollIndicator={false}
+//             />
+//           )}
+//         </View>
 
-//         {/* Places */}
-//         {isLoading ? (
-//           <ActivityIndicator size="large" style={{ marginTop: 40 }} />
-//         ) : (
-//           <FlatList
-//             ref={listRef}
-//             horizontal
-//             data={places}
-//             renderItem={renderPlaceCard}
-//             keyExtractor={(item) => item.id}
-//             showsHorizontalScrollIndicator={false}
-//             contentContainerStyle={{ paddingHorizontal: 20 }}
-//           />
-//         )}
 //       </ScrollView>
 //     </SafeAreaView>
 //   );
 // }
 
-// /* -------------------------------------------------------------------------- */
-// /*                                TAB NAVIGATION                               */
-// /* -------------------------------------------------------------------------- */
-
 // const Tab = createBottomTabNavigator<TabParamList>();
 
 // export default function HomeScreen() {
 //   return (
-//     <Tab.Navigator
-//       screenOptions={{
-//         headerShown: false,
-//         tabBarShowLabel: false, 
-//         tabBarStyle: {
-//           backgroundColor: '#FFFFFF',
-//           borderTopWidth: 0,
-//           elevation: 0, 
-//           shadowOpacity: 0,
-//           height: Platform.OS === 'ios' ? 90 : 70, 
-//           paddingTop: 10, 
-//           paddingBottom: Platform.OS === 'ios' ? 30: 30,
-//         },
-//         tabBarActiveTintColor: '#0c0b0bff', 
-//         tabBarInactiveTintColor: '#B0B0B0', 
-//       }}
-//     >
-//       <Tab.Screen 
-//         name="Home" 
-//         component={HomeContent} 
-//         options={{
-//           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-//             <View style={styles.iconContainer}>
-//               <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
-//               {focused && <View style={styles.activeDot} />}
-//             </View>
-//           ),
-//         }}
-//       />
-      
-//       <Tab.Screen 
-//         name="History" 
-//         component={HistoryScreen} 
-//         options={{
-//           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-//              <View style={styles.iconContainer}>
-//                <Ionicons name={focused? "time" :"time-outline"}size={24} color={color} />
-//                {focused && <View style={styles.activeDot} />}
-//              </View>
-//           ),
-//         }}
-//       />
-
-//       <Tab.Screen 
-//         name="Favorites" 
-//         component={FavoritesScreen} 
-//         options={{
-//           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-//             <View style={styles.iconContainer}>
-//               <Ionicons name={focused ? "heart" : "heart-outline"} size={24} color={color} />
-//               {focused && <View style={styles.activeDot} />}
-//             </View>
-//           ),
-//         }}
-//       />
-
-//       <Tab.Screen 
-//         name="Profile" 
-//         component={ProfileScreen} 
-//         options={{
-//           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-//             <View style={styles.iconContainer}>
-//               <MaterialIcons name="menu" size={24} color={color} />
-//               {focused && <View style={styles.activeDot} />}
-//             </View>
-//           ),
-//         }}
-//       />
+//     <Tab.Navigator screenOptions={{ headerShown: false }}>
+//       <Tab.Screen name="Home" component={HomeContent} />
+//       <Tab.Screen name="History" component={HistoryScreen} />
+//       <Tab.Screen name="Favorites" component={FavoritesScreen} />
+//       <Tab.Screen name="Profile" component={ProfileScreen} />
 //     </Tab.Navigator>
 //   );
 // }
 
-// /* -------------------------------------------------------------------------- */
-// /*                                   STYLES                                   */
-// /* -------------------------------------------------------------------------- */
-
 // const styles = StyleSheet.create({
 //   container: { flex: 1, backgroundColor: '#F9F9F9' },
-
+//   scrollContent: { paddingBottom: 100 },
 //   header: {
 //     flexDirection: 'row',
 //     justifyContent: 'space-between',
 //     padding: 20,
 //   },
-//   headerTitle: { fontSize: 22, fontWeight: 'bold' },
-//   headerSubtitle: { color: '#777' },
-
+//   headerTitle: { fontSize: 24, fontWeight: 'bold' },
+//   headerSubtitle: { color: '#888' },
 //   avatarContainer: {
 //     width: 50,
 //     height: 50,
@@ -1038,48 +875,14 @@ const styles = StyleSheet.create({
 //     alignItems: 'center',
 //   },
 //   avatarText: { fontSize: 18, fontWeight: 'bold' },
-
 //   searchContainer: {
 //     flexDirection: 'row',
 //     alignItems: 'center',
-//     backgroundColor: '#fff',
+//     backgroundColor: '#FFF',
 //     margin: 20,
-//     borderRadius: 12,
+//     borderRadius: 20,
 //     paddingHorizontal: 15,
 //   },
 //   searchInput: { flex: 1, marginLeft: 10 },
-
-//   searchResultItem: {
-//     flexDirection: 'row',
-//     paddingVertical: 15,
-//     borderBottomWidth: 1,
-//     borderBottomColor: '#EFEFEF',
-//   },
-//   searchResultIcon: {
-//     width: 40,
-//     height: 40,
-//     borderRadius: 20,
-//     backgroundColor: '#F0F0F0',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginRight: 15,
-//   },
-//   searchResultTitle: { fontSize: 16, fontWeight: '600' },
-//   searchResultLocation: { fontSize: 14, color: '#888' },
-//   iconContainer: { 
-//     alignItems: 'center', 
-//     justifyContent: 'center', 
-//     height: 40,
-//     width: 40,
-//     marginBottom:30,
-//     marginTop:5,
-//   },
-//   activeDot: { 
-//     width: 6, 
-//     height: 6, 
-//     borderRadius: 3, 
-//     backgroundColor: '#1b1a19ff', 
-//     position: 'absolute',
-//     bottom: -6, 
-//   },
+//   placesContainer: { paddingLeft: 20 },
 // });
