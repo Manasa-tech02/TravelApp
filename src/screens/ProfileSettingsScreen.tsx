@@ -1,4 +1,5 @@
 // import React, { useState } from 'react';
+// import React, { useState } from 'react';
 // import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
 // import { SafeAreaView } from 'react-native-safe-area-context';
 // import { Ionicons } from '@expo/vector-icons';
@@ -330,6 +331,7 @@ const ProfileSettingsScreen = () => {
   const [location, setLocation] = useState('');
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
+  const [onFocusedField, setOnFocusedField] = useState<string | null>(null);
 
   // 🔥 Load profile from Firestore
   useEffect(() => {
@@ -399,20 +401,24 @@ const ProfileSettingsScreen = () => {
             <View style={styles.inputContainerHalf}>
               <Ionicons name="person-outline" size={18} color="#888" style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, onFocusedField === 'firstName' && styles.inputFocused]}
                 placeholder="First Name"
                 value={firstName}
                 onChangeText={setFirstName}
+                onFocus={() => setOnFocusedField('firstName')}
+                onBlur={() => setOnFocusedField(null)}
               />
             </View>
 
             <View style={styles.inputContainerHalf}>
               <Ionicons name="person-outline" size={18} color="#888" style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, onFocusedField === 'lastName' && styles.inputFocused]}
                 placeholder="Last Name"
                 value={lastName}
                 onChangeText={setLastName}
+                onFocus={() => setOnFocusedField('lastName')}
+                onBlur={() => setOnFocusedField(null)}
               />
             </View>
           </View>
@@ -420,40 +426,48 @@ const ProfileSettingsScreen = () => {
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={18} color="#888" style={styles.inputIcon} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, onFocusedField === 'email' && styles.inputFocused]}
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
+              onFocus={() => setOnFocusedField('email')}
+              onBlur={() => setOnFocusedField(null)}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Ionicons name="call-outline" size={18} color="#888" style={styles.inputIcon} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, onFocusedField === 'phone' && styles.inputFocused]}
               placeholder="Phone"
               value={phone}
               onChangeText={setPhone}
+              onFocus={() => setOnFocusedField('phone')}
+              onBlur={() => setOnFocusedField(null)}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Ionicons name="location-outline" size={18} color="#888" style={styles.inputIcon} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, onFocusedField === 'location' && styles.inputFocused]}
               placeholder="Location"
               value={location}
               onChangeText={setLocation}
+              onFocus={() => setOnFocusedField('location')}
+              onBlur={() => setOnFocusedField(null)}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <Ionicons name="home-outline" size={18} color="#888" style={styles.inputIcon} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, onFocusedField === 'address' && styles.inputFocused]}
               placeholder="Address"
               value={address}
               onChangeText={setAddress}
+              onFocus={() => setOnFocusedField('address')}
+              onBlur={() => setOnFocusedField(null)}
             />
           </View>
 
@@ -466,6 +480,8 @@ const ProfileSettingsScreen = () => {
               onChangeText={setPincode}
               keyboardType="number-pad"
               maxLength={6}
+              onFocus={() => setOnFocusedField('fieldName')}
+              onBlur={() => setOnFocusedField(null)}
             />
           </View>
         </View>
@@ -546,6 +562,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#222',
   },
+  inputFocused: {
+  borderWidth: 1.5,
+  borderColor: '#43679a',
+  backgroundColor: '#eef4fb',
+},
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',

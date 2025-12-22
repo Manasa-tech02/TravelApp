@@ -21,7 +21,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import auth from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';  
 // // --- Redux Imports ---
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { toggleFavorite } from '../redux/slices/favoritesSlice';
@@ -43,6 +43,8 @@ import { TabParamList } from '../navigation/types';
 import CategoryItem from '../components/CategoryItem';
 import PlaceCard from '../components/PlaceCard';
 import { useAuth } from '../auth/useAuth';
+import LoginScreen from './LoginScreen';
+import firestore from '@react-native-firebase/firestore'
 
 
 const CATEGORIES: { id: SortCategory; name: string }[] = [
@@ -68,7 +70,24 @@ function HomeContent() {
   const { user, isAuthenticated } = useAuth();
   const { activeCategory } = useAppSelector((state) => state.places);
   const favorites = useAppSelector((state) => state.favorites.items);
-  const displayName = isAuthenticated ? user?.displayName : 'Guest';
+  const [fullName, setFullName] = useState('Guest');
+
+useEffect(() => {
+  if (!user?.uid) {
+    setFullName('Guest');
+    return;
+  }
+
+  const unsubscribe = firestore()
+    .collection('users')
+    .doc(user.uid)
+    .onSnapshot(doc => {
+      setFullName(doc.exists() ? doc.data()?.fullName : 'Guest');
+    });
+
+  return unsubscribe;
+}, [user?.uid]);
+
   
   const [searchText, setSearchText] = useState('');
   const [debouncedSearchText, setDebouncedSearchText] = useState('');
@@ -205,7 +224,7 @@ function HomeContent() {
         <View style={styles.header}>
           <View>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <Text style={styles.headerTitle}>Hi, {user?.email || 'Guest'}</Text>
+              <Text style={styles.headerTitle}>Hi, {fullName}</Text>
               <Text style={{fontSize: 28}}>👋</Text>
             </View>
             <Text style={styles.headerSubtitle}>Explore the world</Text>
@@ -213,7 +232,7 @@ function HomeContent() {
           
           <View style={styles.avatarContainer}>
            <Text style={styles.avatarText}>
-             {user?.email ? user.email.charAt(0).toUpperCase() : 'G'}
+             {fullName?getInitials(fullName):'G'}
             </Text>
           </View>
         </View>
@@ -322,9 +341,12 @@ function HomeContent() {
   );
 }
 
+
 const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function HomeScreen() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -358,7 +380,7 @@ export default function HomeScreen() {
       
       <Tab.Screen 
         name="History" 
-        component={HistoryScreen} 
+        component={isAuthenticated ? HistoryScreen : LoginScreen}
         options={{
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
              <View style={styles.iconContainer}>
@@ -371,7 +393,7 @@ export default function HomeScreen() {
 
       <Tab.Screen 
         name="Favorites" 
-        component={FavoritesScreen} 
+       component={isAuthenticated ? FavoritesScreen : LoginScreen} 
         options={{
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
             <View style={styles.iconContainer}>

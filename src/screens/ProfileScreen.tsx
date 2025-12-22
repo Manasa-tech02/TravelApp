@@ -419,14 +419,15 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import auth from '@react-native-firebase/auth';
 import { RootStackParamList } from '../navigation/types';
 import { useAuth } from '../auth/useAuth';
+import { logoutUser } from '../services/firebaseAuthServices';
 
 const ProfileScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // ✅ Single source of truth for auth
-  const { user } = useAuth();
-  const isAuthenticated = !!user;
+  const { user, isAuthenticated } = useAuth();
+  
 
   const handleFooterPress = () => {
     if (!isAuthenticated) {
@@ -442,10 +443,9 @@ const ProfileScreen = () => {
         {
           text: 'Log out',
           style: 'destructive',
-          onPress: async () => {
-            await auth().signOut();
+          onPress: logoutUser,
           },
-        },
+        
       ]
     );
   };
@@ -491,6 +491,8 @@ const ProfileScreen = () => {
               </Text>
             </View>
           </TouchableOpacity>
+
+          
         </View>
 
         <TouchableOpacity
@@ -505,6 +507,7 @@ const ProfileScreen = () => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -595,6 +598,10 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
+
+
+
+
 
 
 

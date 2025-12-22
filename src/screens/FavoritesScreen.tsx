@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
-import { toggleFavorite } from '../redux/slices/favoritesSlice';
+import auth from '@react-native-firebase/auth';
+import { toggleFavorite, clearFavorites } from '../redux/slices/favoritesSlice';
+import { useAuth } from '../auth/useAuth';
 import { Place } from '../services/types';
 import { RootStackParamList } from '../navigation/types';
 
@@ -24,9 +26,30 @@ type NavigationProp = NativeStackNavigationProp<
 >;
 
 export default function FavoritesScreen() {
+  const { user, isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites.items);
+
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged((user) => {
+      if (!user) {
+        dispatch(clearFavorites());
+      }
+    });
+    return unsubscribe;
+  }, [dispatch]);
+
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.emptyContainer}>
+          <Ionicons name="lock-closed-outline" size={40} color="#DDD" />
+          <Text style={styles.emptyText}>Please log in to view your favorites.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderFavoriteItem = ({ item }: { item: Place }) => {
     return (

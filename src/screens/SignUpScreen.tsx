@@ -662,6 +662,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { signupUser } from '../services/firebaseAuthServices';
 
 export default function SignUpScreen() {
   const fullNameRef = useRef<TextInput>(null);
@@ -713,12 +714,12 @@ export default function SignUpScreen() {
 
     try {
       // 🔐 1. Create Firebase Auth user
-      const result = await auth().createUserWithEmailAndPassword(
+      await signupUser(
         email,
         password
       );
 
-      const uid = result.user.uid;
+      const uid = auth().currentUser?.uid;
 
       // 🧾 2. Store user profile in Firestore
       await firestore()

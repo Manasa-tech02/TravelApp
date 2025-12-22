@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -12,11 +12,34 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Redux
 import { useAppSelector, useAppDispatch } from '../redux/hooks';
+import auth from '@react-native-firebase/auth';
 import { removeFromHistory, clearHistory, HistoryItem } from '../redux/slices/historySlice';
+import { useAuth } from '../auth/useAuth';
 
 export default function HistoryScreen() {
+  const { user, isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
   const history = useAppSelector((state) => state.history.items || []);
+
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged((user) => {
+      if (!user) {
+        dispatch(clearHistory());
+      }
+    });
+    return unsubscribe;
+  }, [dispatch]);
+
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <View style={styles.emptyContainer}>
+          <Ionicons name="lock-closed-outline" size={40} color="#DDD" />
+          <Text style={styles.emptyText}>Please log in to view your history.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderHistoryItem = ({ item }: { item: HistoryItem }) => {
     return (

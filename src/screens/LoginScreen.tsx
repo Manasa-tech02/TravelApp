@@ -204,7 +204,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+
 import { loginUser } from '../services/firebaseAuthServices';
+import secureStorage from '../redux/secureStorage';
 
 export default function LoginScreen() {
   const emailRef = useRef<TextInput>(null);
@@ -218,6 +220,19 @@ export default function LoginScreen() {
 
   const navigation = useNavigation<any>();
 
+  // On mount, check for saved credentials
+  React.useEffect(() => {
+    (async () => {
+      const savedEmail = await secureStorage.getItem('rememberedEmail');
+      const savedPassword = await secureStorage.getItem('rememberedPassword');
+      if (savedEmail && savedPassword) {
+        setEmail(savedEmail);
+        setPassword(savedPassword);
+        setRememberMe(true);
+      }
+    })();
+  }, []);
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please enter email and password');
@@ -229,6 +244,15 @@ export default function LoginScreen() {
     try {
       // 🔐 Firebase login (credentials + UID verified internally)
       await loginUser(email, password);
+
+      // Store credentials if rememberMe is checked, else remove
+      if (rememberMe) {
+        await secureStorage.setItem('rememberedEmail', email);
+        await secureStorage.setItem('rememberedPassword', password);
+      } else {
+        await secureStorage.removeItem('rememberedEmail');
+        await secureStorage.removeItem('rememberedPassword');
+      }
 
       // ✅ Manual navigation to Home
       navigation.reset({
@@ -302,8 +326,7 @@ export default function LoginScreen() {
           {/* Remember Me */}
           <TouchableOpacity
             style={styles.rememberMeRow}
-            onPress={() => setRememberMe(rememberMe)}
-            
+            onPress={() => setRememberMe(!rememberMe)}
           >
             <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
               {rememberMe && <Ionicons name="checkmark" size={14} color="#fff" />}
@@ -325,7 +348,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           {/* Signup */}
-          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
             <Text style={styles.signupText}>
               Don’t have an account? Sign up
             </Text>
